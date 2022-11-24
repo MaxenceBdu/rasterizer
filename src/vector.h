@@ -188,7 +188,7 @@ namespace aline
 
     // Output operator.
     template <class T, int N>
-    std::ostream &operator<<(std::ostream out, const Vector<T, N> v)
+    std::ostream &operator<<(std::ostream& out, const Vector<T, N> v)
     {
         out << to_string(v) << std::endl;
         return out;
@@ -253,8 +253,13 @@ namespace aline
     // The dot product of two vectors.
     template <class T, int N>
     Vector<T, N> operator*(const Vector<T, N> &u, const Vector<T, N> &v)
-    {
-        return dot(u, v);
+    {   
+        Vector<T,N> result = Vector<T,N>();
+        for(int i = 0; i < N; i++){
+            result[i] = u[i]*v[i];
+        }
+        return result;
+        
     }
 
     // The division of a vector by a scalar (same as the multiplication by 1/s).

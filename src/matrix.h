@@ -13,7 +13,7 @@ namespace aline
             vectors = new Vector<T, N>[M];
             for (int i = 0; i < M; ++i)
             {
-                vectors[i] = Vector();
+                vectors[i] = Vector<T,N>();
             }
         }
 
@@ -25,19 +25,19 @@ namespace aline
             size_t i = 0;
             for (auto &item : l)
             { // fill with values of l
-                elmts[i] = Vector(item);
+                vectors[i] = Vector<T,N>(item);
                 ++i;
             }
             for (size_t j = i; j < N; ++j)
             { // fill with zeros if l.size() < N
-                elmts[j] = 0;
+                vectors[j] = Vector<T,N>();
             }
         }
 
         // Constructs a copy of the matrix given as argument.
         Matrix(const Matrix<T, M, N> &m)
         {
-            vectors = new T[N];
+            vectors = new Vector<T,N>[M];
             for (size_t i = 0; i < M; i++)
             {
                 vectors[i] = m.vectors[i];
@@ -47,7 +47,7 @@ namespace aline
         ~Matrix()
         {
             // for(int i = 0; i < M; ++i)[
-            //     delete [] vectors[i].elmts;
+            //     delete [] vectors[i].vectors;
             //]
             delete[] vectors;
         }
@@ -57,14 +57,20 @@ namespace aline
         {
             if (i >= M)
             {
-                throw runtime_error("Index " + std::to_string(i) + " is out of range");
+                throw std::runtime_error("Index " + std::to_string(i) + " is out of range");
             }
+
+            return vectors[i]; 
         }
 
         // The element indexed by the given arguments. Throws runtime_error if the index is out of range.        *
         T at(size_t i, size_t j) const
         {
-            return at(i).at(j);
+            if (i >= M || j >= N)
+            {
+                throw std::runtime_error("Indexes are out of range");
+            }
+            return vectors[i][j];
         }
 
         // Subscripting (the as at(), but does not throw an exception).
@@ -80,7 +86,7 @@ namespace aline
         }
 
         // Matrix addition and assignment.
-        Matrix<T, M, N> &operator+=(const Vector<T, N> &m)
+        Matrix<T, M, N> &operator+=(const Matrix<T, M, N> &m)
         {
             for (int i = 0; i < M; ++i)
             {
@@ -95,16 +101,33 @@ namespace aline
 
     // The inverse of a matrix. If the matrix is not invertible, returns a NAN (not a number) matrix.
     template <class T, int M, int N>
-    Matrix<T, M, N> inverse(const Matrix<T, M, N> &m);
+    Matrix<T, M, N> inverse(const Matrix<T, M, N> &m){
+        // TO DO
+    }
 
     // Tests if a matrix contains NAN (not a number) values.
     template <class T, int M, int N>
     bool isnan(const Matrix<T, M, N> &m)
     {
         for (int i = 0; i < M; ++i)
-            if (isnan(matrix[i]))
+            if (isnan(m[i]))
                 return true;
         return false;
+    }
+
+    // Tests if two vectors contain nearly equal values. Two values are nearly equal when
+    // they are very close, with respect to their magnitudes. For example, 1.0000001 can be
+    // considered nearly equal to 1, whereas 1.234 is not nearly equal to 1.242. However,
+    // because of their magnitude, 67329.234 can be considered nearly equal to 67329.242.1
+    template <class T, int N, int M>
+    bool nearly_equal(const Matrix<T, M, N> &m1, const Matrix<T, M, N> &m2)
+    {
+
+        for (size_t i = 0; i < M; ++i)
+            if(!nearly_equal(m1[i], m2[i]))
+                return false;
+
+        return true;
     }
 
     // Tests if two matrices contain the same values.
@@ -129,20 +152,21 @@ namespace aline
 
     // Output operator.
     template <class T, int M, int N>
-    std::ostream &operator<<(std::ostream out, const Matrix<T, M, N> &m)
+    std::ostream &operator<<(std::ostream& out, const Matrix<T, M, N> &m)
     {
-        out << to_string(m);
+        out << to_string(m) << std::endl;
         return out;
     }
 
     // The sum of two matrices.
     template <class T, int M, int N>
-    Matrix<T, M, N> operator+(const Matrix<T, M, N> &m, const Matrix<T, M, N> &n)
+    Matrix<T, M, N> operator+(const Matrix<T, M, N> &m1, const Matrix<T, M, N> &m2)
     {
         Matrix<T, M, N> result = Matrix<T, M, N>();
         for (int i = 0; i < M; ++i)
-            for (int j = 0; j < N; ++j)
-                result[i][j] = m1[i][j] + m2[i][j];
+            result [i] = m1[i]+m2[i];
+            //for (int j = 0; j < N; ++j)
+                //result[i][j] = m1[i][j] + m2[i][j];
         return result;
     }
 
@@ -159,8 +183,9 @@ namespace aline
     {
         Matrix<T, M, N> result = Matrix<T, M, N>();
         for (int i = 0; i < M; ++i)
-            for (int j = 0; j < N; ++j)
-                result[i][j] = m1[i][j] - m2[i][j];
+            result [i] = m1[i]-m2[i];
+            //for (int j = 0; j < N; ++j)
+                //result[i][j] = m1[i][j] - m2[i][j];
 
         return result;
     }
@@ -171,8 +196,7 @@ namespace aline
     {
         Matrix<T, M, N> result = Matrix<T, M, N>();
         for (int i = 0; i < M; ++i)
-            for (int j = 0; j < N; ++j)
-                result[i][j] = m[i][j] * s;
+            result[i] = s * m[i]; 
 
         return result;
     }
@@ -224,7 +248,7 @@ namespace aline
             }
         }
 
-        result p;
+        return result;
     }
 
     // The division of a matrix by a scalar (same as the multiplication by 1/s ).
@@ -238,7 +262,7 @@ namespace aline
     template <class T, int M, int N>
     std::string to_string(const Matrix<T, M, N> &m)
     {
-        stringstream ss;
+        std::stringstream ss;
         ss << "{ ";
         for (int i = 0; i < M; i++)
         {
@@ -250,5 +274,13 @@ namespace aline
 
     // The transpose of a matrix.
     template <class T, int M, int N>
-    Matrix<T, M, N> transpose(const Matrix<T, M, N> &m);
+    Matrix<T, M, N> transpose(const Matrix<T, M, N> &m){
+        Matrix<T,M,N> result = Matrix<T,M,N>();
+        for(int i = 0; i < M; ++i){
+            for(int j = 0; j < N; j++){
+                result[i][j] = m[j][i];
+            }
+        }
+        return result;
+    }
 }
