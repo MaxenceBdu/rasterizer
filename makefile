@@ -48,10 +48,6 @@ $(OBJ_FILES): $(OBJ_DIR)/%.$(OBJ_EXT): $(SRC_DIR)/%.$(SRC_EXT)
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-# Generate executable test files.
-.PHONY: all
-all: $(TEST_BIN_FILES)
-
 # Create test_vector
 $(BIN_DIR)/test_vector: $(OBJ_DIR)/test_vector.o
 	mkdir -p $(BIN_DIR)
@@ -65,6 +61,10 @@ $(BIN_DIR)/test_matrix: $(OBJ_DIR)/test_matrix.o
 $(TEST_OBJ_FILES): $(OBJ_DIR)/%.$(OBJ_EXT): $(TEST_SRC_DIR)/%.$(SRC_EXT) 
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
+
+# Generate executable test files.
+.PHONY: all
+all: $(TEST_BIN_FILES)
 
 # Cleaning.
 .PHONY: clean
