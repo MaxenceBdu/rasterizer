@@ -6,50 +6,42 @@ namespace aline
     class Matrix
     {
     public:
-        Vector<T, N> *vectors;
+        Vector<T, N> **vectors;
         // Constructs a matrix filled up with zeros.
         Matrix()
         {
-            vectors = new Vector<T, N>[M];
+            vectors = new Vector<T, N>*[M];
             for (int i = 0; i < M; ++i)
             {
-                vectors[i] = Vector<T,N>();
+                vectors[i] = new Vector<T,N>();
             }
         }
 
         // Constructs a matrix with the vectors given as arguments. Each vector is one line of the matrix.
         Matrix(std::initializer_list<Vector<T, N>> l)
         {
-            vectors = new Vector<T, N>[M];
+            vectors = new Vector<T, N>*[M];
 
             size_t i = 0;
             for (auto &item : l)
             { // fill with values of l
-                vectors[i] = Vector<T,N>(item);
+                vectors[i] = new Vector<T,N>(item);
                 ++i;
             }
             for (size_t j = i; j < N; ++j)
             { // fill with zeros if l.size() < N
-                vectors[j] = Vector<T,N>();
+                vectors[j] = new Vector<T,N>();
             }
         }
 
         // Constructs a copy of the matrix given as argument.
         Matrix(const Matrix<T, M, N> &m)
         {
-            vectors = new Vector<T,N>[M];
+            vectors = new Vector<T,N>*[M];
             for (size_t i = 0; i < M; i++)
             {
-                vectors[i] = m.vectors[i];
+                vectors[i] = new Vector<T,N>(*(m.vectors[i]));
             }
-        }
-
-        ~Matrix()
-        {
-            // for(int i = 0; i < M; ++i)[
-            //     delete [] vectors[i].vectors;
-            //]
-            delete[] vectors;
         }
 
         // The line indexed by the given argument. Throws runtime_error if the index is out of range
@@ -60,7 +52,7 @@ namespace aline
                 throw std::runtime_error("Index " + std::to_string(i) + " is out of range");
             }
 
-            return vectors[i]; 
+            return *(vectors[i]); 
         }
 
         // The element indexed by the given arguments. Throws runtime_error if the index is out of range.        *
@@ -70,19 +62,19 @@ namespace aline
             {
                 throw std::runtime_error("Indexes are out of range");
             }
-            return vectors[i][j];
+            return (*(vectors[i]))[j];
         }
 
         // Subscripting (the as at(), but does not throw an exception).
         Vector<T, N> operator[](size_t i) const
         {
-            return vectors[i];
+            return *(vectors[i]);
         }
 
         // Subscripting permitting assignment.
         Vector<T, N> &operator[](size_t i)
         {
-            return vectors[i];
+            return *(vectors[i]);
         }
 
         // Matrix addition and assignment.
@@ -92,10 +84,18 @@ namespace aline
             {
                 for (int j = 0; j < N; ++j)
                 {
-                    vectors[i][j] = vectors[i][j] + m[i][j];
+                    (*(vectors[i]))[j] = (*(vectors[i]))[j] + m[i][j];
                 }
             }
             return *this;
+        }
+
+
+        ~Matrix()
+        {
+            for(int i = 0; i < M; ++i)
+                delete vectors[i];
+            delete[] vectors;
         }
     };
 

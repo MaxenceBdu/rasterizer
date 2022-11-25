@@ -118,6 +118,7 @@ int test_operator_subscript()
   v[1][2] = Vec3r{7, 7, 7};
   v[2][0] = Vec3r{8, 8, 8};
 
+  std::cout << to_string(v[0][1]) << std::endl;
   TestVector test_vec{{"v[0][1] == Vec3r {3,3,3}", v[0][1] == Vec3r{3, 3, 3}}, {"v[1][2] == Vec3r {7,7,7}", v[1][2] == Vec3r{7, 7, 7}}, {"v[2][0] == Vec3r {8,8,8}", v[2][0] == Vec3r{8, 8, 8}}};
 
   return run_tests("operator[]", test_vec);
