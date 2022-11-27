@@ -37,6 +37,7 @@ int test_constructors()
   c[1][1] = 4;
   c[2][1] = 5;
   Mat33i d = {{6}};
+
   TestVector test_vec{
       {"a.at( 0 ) == Vec3i {0,0,0}", a.at(0) == Vec3i{0, 0, 0}},
       {"a.at( 1 ) == Vec3i {0,0,0}", a.at(1) == Vec3i{0, 0, 0}},
@@ -118,7 +119,9 @@ int test_operator_subscript()
   v[1][2] = Vec3r{7, 7, 7};
   v[2][0] = Vec3r{8, 8, 8};
 
-  std::cout << to_string(v[0][1]) << std::endl;
+  std::cout << to_string(v[0]) << std::endl;
+  //std::cout << to_string(v[1][2]) << std::endl;
+  //std::cout << to_string(v[2][0]) << std::endl;
   TestVector test_vec{{"v[0][1] == Vec3r {3,3,3}", v[0][1] == Vec3r{3, 3, 3}}, {"v[1][2] == Vec3r {7,7,7}", v[1][2] == Vec3r{7, 7, 7}}, {"v[2][0] == Vec3r {8,8,8}", v[2][0] == Vec3r{8, 8, 8}}};
 
   return run_tests("operator[]", test_vec);

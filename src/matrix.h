@@ -5,8 +5,9 @@ namespace aline
     template <class T, int M, int N>
     class Matrix
     {
+        Vector<T, N> ** vectors; // tableau de pointeurs de vecteurs
     public:
-        Vector<T, N> **vectors;
+        
         // Constructs a matrix filled up with zeros.
         Matrix()
         {
@@ -25,12 +26,11 @@ namespace aline
             size_t i = 0;
             for (auto &item : l)
             { // fill with values of l
-                vectors[i] = new Vector<T,N>(item);
-                ++i;
+                vectors[i++] = new Vector<T,N>(item);
             }
-            for (size_t j = i; j < N; ++j)
+            for (size_t j = i; j < M; ++j)
             { // fill with zeros if l.size() < N
-                vectors[j] = new Vector<T,N>();
+                vectors[j] = new Vector<T, N>();
             }
         }
 
@@ -40,7 +40,7 @@ namespace aline
             vectors = new Vector<T,N>*[M];
             for (size_t i = 0; i < M; i++)
             {
-                vectors[i] = new Vector<T,N>(*(m.vectors[i]));
+                vectors[i] = new Vector<T,N>(m[i]);
             }
         }
 
@@ -93,8 +93,9 @@ namespace aline
 
         ~Matrix()
         {
-            for(int i = 0; i < M; ++i)
+            for(int i = 0; i < M; ++i){
                 delete vectors[i];
+            }
             delete[] vectors;
         }
     };
@@ -266,7 +267,7 @@ namespace aline
         ss << "{ ";
         for (int i = 0; i < M; i++)
         {
-            ss << to_string(m[i]);
+            ss << to_string(m[i]) << "\n";
         }
         ss << " }";
         return ss.str();
