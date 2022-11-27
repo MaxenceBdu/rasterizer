@@ -10,14 +10,12 @@ namespace aline
     template <class T, int N>
     class Vector
     {
+        T elmts[N];
     public:
-        size_t size = N;
-        T *elmts;
 
         // default constructor
         Vector()
         {
-            elmts = new T[N];
             for (size_t i = 0; i < N; i++)
                 elmts[i] = 0;
         }
@@ -28,7 +26,6 @@ namespace aline
             if (l.size() > (size_t)N)
                 throw std::runtime_error("Initializer list is too long");
 
-            elmts = new T[N];
 
             size_t i = 0;
             for (auto &item : l)
@@ -45,14 +42,13 @@ namespace aline
         // Copy constructor
         Vector(const Vector<T, N> &v)
         {
-            elmts = new T[N];
             for (size_t i = 0; i < N; i++)
             {
                 elmts[i] = v.elmts[i];
             }
         }
 
-        T &at(size_t i) const
+        T at(size_t i) const
         {
             if (i >= N)
                 throw std::runtime_error("Index " + std::to_string(i) + " is out of range");
@@ -78,11 +74,6 @@ namespace aline
             }
 
             return *this;
-        }
-
-        ~Vector()
-        {
-            delete[] elmts;
         }
     };
 
@@ -282,12 +273,13 @@ namespace aline
     std::string to_string(const Vector<T, N> &v)
     {
         std::stringstream ss;
-        ss << "{";
+        //ss.precision(6);
+        ss << "(";
         for (size_t i = 0; i < N - 1; ++i)
         {
-            ss << v[i] << ", ";
+            ss << std::fixed << v[i] << ", ";
         }
-        ss << v[N - 1] << "}";
+        ss << std::fixed << v[N - 1] << ")";
         return ss.str();
     }
 

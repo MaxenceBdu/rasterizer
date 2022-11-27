@@ -119,9 +119,6 @@ int test_operator_subscript()
   v[1][2] = Vec3r{7, 7, 7};
   v[2][0] = Vec3r{8, 8, 8};
 
-  std::cout << to_string(v[0]) << std::endl;
-  //std::cout << to_string(v[1][2]) << std::endl;
-  //std::cout << to_string(v[2][0]) << std::endl;
   TestVector test_vec{{"v[0][1] == Vec3r {3,3,3}", v[0][1] == Vec3r{3, 3, 3}}, {"v[1][2] == Vec3r {7,7,7}", v[1][2] == Vec3r{7, 7, 7}}, {"v[2][0] == Vec3r {8,8,8}", v[2][0] == Vec3r{8, 8, 8}}};
 
   return run_tests("operator[]", test_vec);
@@ -289,7 +286,7 @@ int test_to_string()
 
   std::string s = "s3 == ((0.000000, 0.000000, 1.000000)";
   s += ", (0.500000, 0.500000, 0.500000)";
-  s += ", (0.707107, 0.707107, 1.000000))";
+  s += ", (0.707107, -0.707107, 1.000000))";
   TestVector test_vec{{s, s3 == "((0.000000, 0.000000, 1.000000), (0.500000, 0.500000, 0.500000), (0.707107, -0.707107, 1.000000))"}};
 
   return run_tests("to_string( Matrix )", test_vec);

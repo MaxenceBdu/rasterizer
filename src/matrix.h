@@ -5,42 +5,39 @@ namespace aline
     template <class T, int M, int N>
     class Matrix
     {
-        Vector<T, N> ** vectors; // tableau de pointeurs de vecteurs
+        Vector<T, N> vectors[M]; // tableau de pointeurs de vecteurs
     public:
         
         // Constructs a matrix filled up with zeros.
         Matrix()
         {
-            vectors = new Vector<T, N>*[M];
             for (int i = 0; i < M; ++i)
             {
-                vectors[i] = new Vector<T,N>();
+                vectors[i] = Vector<T,N>();
             }
         }
 
         // Constructs a matrix with the vectors given as arguments. Each vector is one line of the matrix.
         Matrix(std::initializer_list<Vector<T, N>> l)
         {
-            vectors = new Vector<T, N>*[M];
 
             size_t i = 0;
             for (auto &item : l)
             { // fill with values of l
-                vectors[i++] = new Vector<T,N>(item);
+                vectors[i++] = Vector<T,N>(item);
             }
             for (size_t j = i; j < M; ++j)
             { // fill with zeros if l.size() < N
-                vectors[j] = new Vector<T, N>();
+                vectors[j] = Vector<T, N>();
             }
         }
 
         // Constructs a copy of the matrix given as argument.
         Matrix(const Matrix<T, M, N> &m)
         {
-            vectors = new Vector<T,N>*[M];
             for (size_t i = 0; i < M; i++)
             {
-                vectors[i] = new Vector<T,N>(m[i]);
+                vectors[i] = Vector<T,N>(m[i]);
             }
         }
 
@@ -52,7 +49,7 @@ namespace aline
                 throw std::runtime_error("Index " + std::to_string(i) + " is out of range");
             }
 
-            return *(vectors[i]); 
+            return vectors[i]; 
         }
 
         // The element indexed by the given arguments. Throws runtime_error if the index is out of range.        *
@@ -62,19 +59,19 @@ namespace aline
             {
                 throw std::runtime_error("Indexes are out of range");
             }
-            return (*(vectors[i]))[j];
+            return vectors[i][j];
         }
 
         // Subscripting (the as at(), but does not throw an exception).
         Vector<T, N> operator[](size_t i) const
         {
-            return *(vectors[i]);
+            return vectors[i];
         }
 
         // Subscripting permitting assignment.
         Vector<T, N> &operator[](size_t i)
         {
-            return *(vectors[i]);
+            return vectors[i];
         }
 
         // Matrix addition and assignment.
@@ -84,19 +81,10 @@ namespace aline
             {
                 for (int j = 0; j < N; ++j)
                 {
-                    (*(vectors[i]))[j] = (*(vectors[i]))[j] + m[i][j];
+                    vectors[i][j] = vectors[i][j] + m[i][j];
                 }
             }
             return *this;
-        }
-
-
-        ~Matrix()
-        {
-            for(int i = 0; i < M; ++i){
-                delete vectors[i];
-            }
-            delete[] vectors;
         }
     };
 
@@ -231,7 +219,7 @@ namespace aline
     Matrix<T, M, O> operator*(const Matrix<T, M, N> &m1, const Matrix<T, N, O> &m2)
     {
         Matrix<T, M, O> result = Matrix<T, M, O>();
-        for (int i = 0; i < N; ++i)
+        for (int i = 0; i < M; ++i)
         {
             Vector<T, N> v1 = m1[i];
             for (int j = 0; j < O; ++j)
@@ -264,12 +252,12 @@ namespace aline
     std::string to_string(const Matrix<T, M, N> &m)
     {
         std::stringstream ss;
-        ss << "{ ";
-        for (int i = 0; i < M; i++)
+        ss << "(";
+        for (int i = 0; i < M - 1; i++)
         {
-            ss << to_string(m[i]) << "\n";
+            ss << to_string(m[i]) << ", ";
         }
-        ss << " }";
+        ss << to_string(m[N-1]) << ")";
         return ss.str();
     }
 
