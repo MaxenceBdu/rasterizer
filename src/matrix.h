@@ -91,23 +91,23 @@ namespace aline
     // The inverse of a matrix. If the matrix is not invertible, returns a NAN (not a number) matrix.
     template <class T, int M, int N>
     Matrix<double, M, N> inverse(const Matrix<T, M, N> &m){
-        return (1/determinant(m))*cofactor_matrix(transpose(m));
+        return (1/determinant(m,M))*cofactor_matrix(transpose(m), M);
     }
 
     // Cofactors matrix
     template <class T, int M, int N>
-    Matrix<double, M, N> cofactor_matrix(const Matrix<T,M,N>& m){
-        if(M == 1)
+    Matrix<double, M, N> cofactor_matrix(const Matrix<T,M,N>& m, int dim){
+        if(dim == 1)
             return Matrix<double,M,N>({{1}});
 
-        if(M == 2)
+        if(dim == 2)
             return Matrix<double, M,N>({{(double)m[1][1],(double)-m[1][0]},{(double)-m[0][1],(double)m[0][0]}});
 
         auto result = Matrix<double,M,N>();
 
-        for(int i = 0; i < M; ++i){
-            for(int j = 0; j < N; ++j){
-                result[i][j] = std::pow((-1),i+j) * determinant(sub_matrix(m, i, j));
+        for(int i = 0; i < dim; ++i){
+            for(int j = 0; j < dim; ++j){
+                result[i][j] = std::pow((-1),i+j) * determinant(sub_matrix(m, i, j, dim), dim);
             }
         }
         return result;
@@ -115,11 +115,11 @@ namespace aline
 
     // Matrix without row deleted_row and column deleted_column
     template <class T, int M, int N>
-    Matrix<T,M-1,N-1> sub_matrix(const Matrix<T,M,N>& m, int deleted_row, int deleted_column, int dim){
-        auto result = Matrix<T,M-1,N-1>();
+    Matrix<T,M,N> sub_matrix(const Matrix<T,M,N>& m, int deleted_row, int deleted_column, int dim){
+        auto result = Matrix<T,M,N>();
 
-        for(int i = 0; i < M; ++i){
-            for(int j = 0; j < N; ++j){
+        for(int i = 0; i < dim; ++i){
+            for(int j = 0; j < dim; ++j){
                 if(i != deleted_row && j != deleted_column){
                     int a = i, b = j; 
                     if(a > deleted_row)
@@ -135,17 +135,17 @@ namespace aline
 
     // Determinant of a matrix
     template <class T, int M, int N>
-    double determinant(const Matrix<T,M,N>& m){
-        if(M == 1)
+    double determinant(const Matrix<T,M,N>& m, int dim){
+        if(dim == 1)
             return m[0][0];
 
-        if(M == 2)
+        if(dim == 2)
             return m[0][0]*m[1][1] - m[0][1]*m[1][0];
 
         double sum = 0;
         int k = 2;
-        Matrix<double,M,N> cofac = cofactor_matrix(m);
-        for(int i = 0; i < M; i++){
+        Matrix<double,M,N> cofac = cofactor_matrix(m, dim);
+        for(int i = 0; i < dim; i++){
             sum += m[k][i]*cofac[k][i];
         }
 
