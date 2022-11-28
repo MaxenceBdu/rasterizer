@@ -5,7 +5,7 @@ namespace aline
     template <class T, int M, int N>
     class Matrix
     {
-        Vector<T, N> vectors[M]; // tableau de pointeurs de vecteurs
+        Vector<T, N> vectors[M];
     public:
         
         // Constructs a matrix filled up with zeros.
@@ -35,7 +35,7 @@ namespace aline
         // Constructs a copy of the matrix given as argument.
         Matrix(const Matrix<T, M, N> &m)
         {
-            for (size_t i = 0; i < M; i++)
+            for (int i = 0; i < M; i++)
             {
                 vectors[i] = Vector<T,N>(m[i]);
             }
@@ -91,64 +91,65 @@ namespace aline
     // The inverse of a matrix. If the matrix is not invertible, returns a NAN (not a number) matrix.
     template <class T, int M, int N>
     Matrix<double, M, N> inverse(const Matrix<T, M, N> &m){
+        return (1/determinant(m))*cofactor_matrix(transpose(m));
+    }
 
-        auto copy = Matrix<double,M,N>(); // copy the matrix to permit editing
-        for(int i = 0; i < M; ++i)
-            for(int j = 0; j < N; ++j)
-                copy[i][j] = (double) m[i][j];
+    // Cofactors matrix
+    template <class T, int M, int N>
+    Matrix<double, M, N> cofactor_matrix(const Matrix<T,M,N>& m){
+        if(M == 1)
+            return Matrix<double,M,N>({{1}});
 
-        auto identity = Matrix<double,M,N>(); // creation of identity matrix
-        for(int i = 0; i < M; ++i)
-            for(int j = 0; j < N; ++j)
-                if(i == j) identity[i][j] = 1;
-            
-        for(int i = 0; i < N; ++i){ // Loop on each column
+        if(M == 2)
+            return Matrix<double, M,N>({{(double)m[1][1],(double)-m[1][0]},{(double)-m[0][1],(double)m[0][0]}});
 
-            // search a max != 0 on the column
-            double max = -1;
-            int row_max = -1;
-            for(int j = i; j < M; ++j){
-                T x = std::abs(copy[j][i]);
-                if(x > 0 && x >= max){
-                    max = copy[j][i];
-                    row_max = j;
-                }                
+        auto result = Matrix<double,M,N>();
+
+        for(int i = 0; i < M; ++i){
+            for(int j = 0; j < N; ++j){
+                result[i][j] = std::pow((-1),i+j) * determinant(sub_matrix(m, i, j));
             }
-
-            if(max != -1){ // max not found, matrix not invertible
-                Matrix<double,M,N> nan_matrix = Matrix<double,M,N>();
-                for(int k = 0; k < M; ++k){
-                    for(int j = 0; j < N; ++j){
-                        nan_matrix[k][j] = std::nan("");
-                    }
-                }
-                return nan_matrix;
-            }
-
-            // Swap rows
-            if(row_max != i){
-                Vector<double,N> temp = copy[row_max];
-                copy[row_max] = copy[i];
-                copy[i] = temp;
-
-                Vector<double,N> temp2 = identity[row_max];
-                identity[row_max] = identity[i];
-                identity[i] = temp2;
-            }
-
-            // Multiply by 1/max
-            copy[i] = copy[i] * (1/max);
-            identity[i] = identity[i] * (1/max);
-
-            for(int j = 0; j < M; ++j){
-                if(j != i){
-                    copy[j] = copy[j] + copy[i] * (-copy[j][i]);
-                    identity[j] = identity[j] + identity[i] * (-copy[j][i]);
-                }
-            }
-
         }
-        return identity;
+        return result;
+    }
+
+    // Matrix without row deleted_row and column deleted_column
+    template <class T, int M, int N>
+    Matrix<T,M-1,N-1> sub_matrix(const Matrix<T,M,N>& m, int deleted_row, int deleted_column, int dim){
+        auto result = Matrix<T,M-1,N-1>();
+
+        for(int i = 0; i < M; ++i){
+            for(int j = 0; j < N; ++j){
+                if(i != deleted_row && j != deleted_column){
+                    int a = i, b = j; 
+                    if(a > deleted_row)
+                        --a;
+                    if(b > deleted_column)
+                        --b;
+                    result[a][b] = m[i][j];
+                }
+            }
+        }
+        return result;
+    }
+
+    // Determinant of a matrix
+    template <class T, int M, int N>
+    double determinant(const Matrix<T,M,N>& m){
+        if(M == 1)
+            return m[0][0];
+
+        if(M == 2)
+            return m[0][0]*m[1][1] - m[0][1]*m[1][0];
+
+        double sum = 0;
+        int k = 2;
+        Matrix<double,M,N> cofac = cofactor_matrix(m);
+        for(int i = 0; i < M; i++){
+            sum += m[k][i]*cofac[k][i];
+        }
+
+        return sum;
     }
 
     // Tests if a matrix contains NAN (not a number) values.
