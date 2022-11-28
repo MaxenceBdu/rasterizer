@@ -90,8 +90,65 @@ namespace aline
 
     // The inverse of a matrix. If the matrix is not invertible, returns a NAN (not a number) matrix.
     template <class T, int M, int N>
-    Matrix<T, M, N> inverse(const Matrix<T, M, N> &m){
-        // TO DO
+    Matrix<double, M, N> inverse(const Matrix<T, M, N> &m){
+
+        auto copy = Matrix<double,M,N>(); // copy the matrix to permit editing
+        for(int i = 0; i < M; ++i)
+            for(int j = 0; j < N; ++j)
+                copy[i][j] = (double) m[i][j];
+
+        auto identity = Matrix<double,M,N>(); // creation of identity matrix
+        for(int i = 0; i < M; ++i)
+            for(int j = 0; j < N; ++j)
+                if(i == j) identity[i][j] = 1;
+            
+        for(int i = 0; i < N; ++i){ // Loop on each column
+
+            // search a max != 0 on the column
+            double max = -1;
+            int row_max = -1;
+            for(int j = i; j < M; ++j){
+                T x = std::abs(copy[j][i]);
+                if(x > 0 && x >= max){
+                    max = copy[j][i];
+                    row_max = j;
+                }                
+            }
+
+            if(max != -1){ // max not found, matrix not invertible
+                Matrix<double,M,N> nan_matrix = Matrix<double,M,N>();
+                for(int k = 0; k < M; ++k){
+                    for(int j = 0; j < N; ++j){
+                        nan_matrix[k][j] = std::nan("");
+                    }
+                }
+                return nan_matrix;
+            }
+
+            // Swap rows
+            if(row_max != i){
+                Vector<double,N> temp = copy[row_max];
+                copy[row_max] = copy[i];
+                copy[i] = temp;
+
+                Vector<double,N> temp2 = identity[row_max];
+                identity[row_max] = identity[i];
+                identity[i] = temp2;
+            }
+
+            // Multiply by 1/max
+            copy[i] = copy[i] * (1/max);
+            identity[i] = identity[i] * (1/max);
+
+            for(int j = 0; j < M; ++j){
+                if(j != i){
+                    copy[j] = copy[j] + copy[i] * (-copy[j][i]);
+                    identity[j] = identity[j] + identity[i] * (-copy[j][i]);
+                }
+            }
+
+        }
+        return identity;
     }
 
     // Tests if a matrix contains NAN (not a number) values.

@@ -302,6 +302,19 @@ int test_transpose()
   return run_tests("transpose( Matrix )", test_vec);
 }
 
+int test_inverse()
+{
+  Mat33i a{{2, 3, 8}, {6, 0, -3}, {-1, 3, 2}};
+  Mat33r b{{0.066666, 0.133333, -0.066666}, {-0.066666, 0.088888, 0.400000}, {0.133333, -0.066666, -0.133333}};
+
+  std::cout << inverse(a) << std::endl;
+  std::cout << b << std::endl;
+  
+  TestVector test_vec{{"inverse( a ) == b", inverse(a) == b}};
+
+  return run_tests("inverse( Matrix )", test_vec);
+}
+
 int main()
 {
   int failures{0};
@@ -322,6 +335,7 @@ int main()
   failures += test_operator_div();
   failures += test_to_string();
   failures += test_transpose();
+  failures += test_inverse();
 
   failures += test_operator_output();
 
