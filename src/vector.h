@@ -241,7 +241,7 @@ namespace aline
         return s * v;
     }
 
-    // The dot product of two vectors.
+    // The product of two vectors.
     template <class T, int N>
     Vector<T, N> operator*(const Vector<T, N> &u, const Vector<T, N> &v)
     {   

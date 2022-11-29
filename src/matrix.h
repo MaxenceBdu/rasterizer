@@ -89,67 +89,61 @@ namespace aline
     };
 
     // The inverse of a matrix. If the matrix is not invertible, returns a NAN (not a number) matrix.
-    template <class T, int M, int N>
-    Matrix<double, M, N> inverse(const Matrix<T, M, N> &m){
-        return (1/determinant(m))*cofactor_matrix(transpose(m));
-    }
+    // Using Gauss-Jordan Elimination
+    template <class T, int M>
+    Matrix<double, M, M> inverse(const Matrix<T, M, M> &m){
 
-    // Cofactors matrix
-    template <class T, int M, int N>
-    Matrix<double, M, N> cofactor_matrix(const Matrix<T,M,N>& m, int dim){
-        if(M == 1)
-            return Matrix<double,M,N>({{1}});
+        // Copy of m, to edit
+        auto copy = Matrix<double,M,M>();
+        for(int i = 0; i < M; ++i)
+            for(int j = 0; j < M; ++j)
+                copy[i][j] = (double) m[i][j];
 
-        if(M == 2)
-            return Matrix<double, M,N>({{(double)m[1][1],(double)-m[1][0]},{(double)-m[0][1],(double)m[0][0]}});
+        // Identity matrix
+        auto identity = Matrix<double,M,M>();
+        for(int i = 0; i < M; ++i)
+            for(int j = 0; j < M; ++j)
+                if(i == j) identity[i][j] = 1;
 
-        auto result = Matrix<double,M,N>();
+        // For each column of m
+        for(int j = 0; j < M; ++j){
 
-        for(int i = 0; i < M; ++i){
-            for(int j = 0; j < N; ++j){
-                result[i][j] = std::pow((-1),i+j) * determinant(sub_matrix(m, i, j));
-            }
-        }
-        return result;
-    }
-
-    // Matrix without row deleted_row and column deleted_column
-    template <class T, int M, int N>
-    Matrix<T,M,N-1> sub_matrix(const Matrix<T,M,N>& m, int deleted_row, int deleted_column){
-        auto result = Matrix<T,M-1,N-1>();
-
-        for(int i = 0; i < M; ++i){
-            for(int j = 0; j < N; ++j){
-                if(i != deleted_row && j != deleted_column){
-                    int a = i, b = j; 
-                    if(a > deleted_row)
-                        --a;
-                    if(b > deleted_column)
-                        --b;
-                    result[a][b] = m[i][j];
+            // Find the row i ≥ j containing the greatest nonzero absolute value of M′[i][j]
+            int row_max = j;
+            double max = copy[j][j];
+            for(int i = j; i < M; ++i){
+                if(std::abs(copy[i][j]) > max){
+                    max = copy[i][j];
+                    row_max = i;
                 }
             }
+
+            // If max == 0, matrix is not invertible
+            if(max == 0){
+                return nan_matrix(copy);
+            }
+
+            // Swap row row_max and j
+            if(row_max != j){
+                std::swap(copy[j], copy[row_max]);
+                std::swap(identity[j], identity[row_max]);
+            }
+            
+            // Multiply row j by 1/max
+            copy[j] = copy[j] * (1/max);
+            identity[j] = identity[j] * (1/max);
+
+            // for each row r != row j, row r = row r + row j * -copy[r][j] 
+            for(int r = 0; r < M; ++r){
+                if(r != j){
+                    double val = -(copy[r][j]);
+                    copy[r] = copy[r] + copy[j] * val;
+                    identity[r] = identity[r] + identity[j] * val;
+                }
+            }            
         }
-        return result;
-    }
 
-    // Determinant of a matrix
-    template <class T, int M, int N>
-    double determinant(const Matrix<T,M,N>& m){
-        if(M == 1)
-            return m[0][0];
-
-        if(M == 2)
-            return m[0][0]*m[1][1] - m[0][1]*m[1][0];
-
-        double sum = 0;
-        int k = 2;
-        Matrix<double,M,N> cofac = cofactor_matrix(m);
-        for(int i = 0; i < M; i++){
-            sum += m[k][i]*cofac[k][i];
-        }
-
-        return sum;
+        return identity;
     }
 
     // Tests if a matrix contains NAN (not a number) values.
@@ -212,7 +206,7 @@ namespace aline
         Matrix<T, M, N> result = Matrix<T, M, N>();
         for (int i = 0; i < M; ++i)
             result [i] = m1[i]+m2[i];
-            //for (int j = 0; j < N; ++j)
+            //for (int j = 0; j < M;; ++j)
                 //result[i][j] = m1[i][j] + m2[i][j];
         return result;
     }
@@ -302,6 +296,8 @@ namespace aline
     template <class T, int M, int N>
     Matrix<T, M, N> operator/(const Matrix<T, M, N> &m, const T &s)
     {
+        if(s == 0)
+            return nan_matrix(m);
         return (1 / s) * m;
     }
 
@@ -326,6 +322,18 @@ namespace aline
         for(int i = 0; i < M; ++i){
             for(int j = 0; j < N; j++){
                 result[i][j] = m[j][i];
+            }
+        }
+        return result;
+    }
+
+    // The transpose of a matrix.
+    template <class T, int M, int N>
+    Matrix<T, M, N> nan_matrix(const Matrix<T, M, N> &m){
+        auto result = Matrix<T,M,N>();
+        for(int i = 0; i < M; ++i){
+            for(int j = 0; j < N; j++){
+                result[i][j] = (T)std::nan("");
             }
         }
         return result;

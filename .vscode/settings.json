@@ -41,6 +41,18 @@
         "typeinfo": "cpp",
         "functional": "cpp",
         "iterator": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "chrono": "cpp",
+        "condition_variable": "cpp",
+        "map": "cpp",
+        "numeric": "cpp",
+        "ratio": "cpp",
+        "set": "cpp",
+        "mutex": "cpp",
+        "thread": "cpp",
+        "cinttypes": "cpp",
+        "bit": "cpp"
     }
 }

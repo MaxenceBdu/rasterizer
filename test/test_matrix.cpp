@@ -305,12 +305,9 @@ int test_transpose()
 int test_inverse()
 {
   Mat33i a{{2, 3, 8}, {6, 0, -3}, {-1, 3, 2}};
-  Mat33r b{{0.066666, 0.133333, -0.066666}, {-0.066666, 0.088888, 0.400000}, {0.133333, -0.066666, -0.133333}};
-
-  std::cout << inverse(a) << std::endl;
-  std::cout << b << std::endl;
+  Mat33r b{{1.0/15.0, 2.0/15.0, -1.0/15.0}, {-1.0/15.0, 4.0/45.0, 2.0/5.0}, {2.0/15.0, -1.0/15.0, -2.0/15.0}};
   
-  TestVector test_vec{{"inverse( a ) == b", inverse(a) == b}};
+  TestVector test_vec{{"inverse( a ) == b", nearly_equal(inverse(a), b)}};
 
   return run_tests("inverse( Matrix )", test_vec);
 }
