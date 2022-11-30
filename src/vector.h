@@ -289,4 +289,9 @@ namespace aline
     {
         return v / norm(v);
     }
+
+    using uint = unsigned int;
+    using real = double;
+    using Vec2i = Vector<int,2ul>;
+    using Vec2r = Vector<real,2ul>;
 }

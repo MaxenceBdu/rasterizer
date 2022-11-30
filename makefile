@@ -1,7 +1,7 @@
 #
 # File       : makefile
 # Licence    : see LICENCE
-# Maintainer : <your name here>
+# Maintainer : Maxence BOISÉDU
 #
 
 # Shell program used.
@@ -30,7 +30,10 @@ else ifeq ($(OS), Darwin)
     INC := -Isrc/
     LIBS := 
 endif
-CFLAGS = -std=c++11 -Wall -O $(CDEBUG) $(INC)
+MINWIN_INC = -I${HOME}/minwin/include
+MINWIN_LIB = -L${HOME}/minwin/bin/libminwin -lminwin
+
+CFLAGS = -std=c++11 -Wall -O $(CDEBUG) $(INC) $(MINWIN_INC) $(MINWIN_LIB)
 LDFLAGS = -g
 
 # Find all source file names.
@@ -55,6 +58,11 @@ $(BIN_DIR)/test_vector: $(OBJ_DIR)/test_vector.o
 
 # Create test_matrix
 $(BIN_DIR)/test_matrix: $(OBJ_DIR)/test_matrix.o
+	mkdir -p $(BIN_DIR)
+	$(CC) $^ $(LDFLAGS) -o $@
+
+# Create test_scene
+$(BIN_DIR)/test_scene: $(OBJ_DIR)/test_scene.o
 	mkdir -p $(BIN_DIR)
 	$(CC) $^ $(LDFLAGS) -o $@
 
