@@ -18,7 +18,9 @@ int main(){
         Face(0,1,5, minwin::RED), 
         Face(1,2,4, minwin::BLUE), 
         Face(1,4,5, minwin::GREEN), 
-        Face(2,3,4, minwin::YELLOW)};
+        Face(2,3,4, minwin::YELLOW)
+    };
+    
     Shape carre = Shape("carré", verts, faces);
 
     s.add_shape(carre);

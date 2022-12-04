@@ -35,7 +35,13 @@ namespace aline{
         the user to change the “view mode” of the scene. Via some keyboard command, the
         user can change from a “wireframe” mode of the scene to a “solid” and a “shaded”
         (optional bonus feature) mode. */
-        void run(){}
+        void run(){
+            while(window.open()){
+                window.clear();
+                
+                window.render_fps_info();
+            }
+        }
         
         /*Closes the MinWin window and frees eventual allocated memory. (For example, if
         your function add_shape() creates a list of shapes, you must clear the list.)*/
