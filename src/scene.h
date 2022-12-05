@@ -20,6 +20,7 @@ namespace aline
   public:
     Scene()
     {
+      std::cout << VIEWPORT_HEIGHT << std::endl;
       shapes = std::vector<Shape>();
       text.set_pos(10, 10);
       text.set_string("Press ESC to quit.");
@@ -83,6 +84,7 @@ namespace aline
           std::vector<Vertex> verts = s.get_vertices();
           for (Face f : faces)
           {
+            // draw every vertice of a face
             window.set_draw_color(f.get_color());
             draw_line(verts[f.get_v0()].get_vec(), verts[f.get_v1()].get_vec());
             draw_line(verts[f.get_v1()].get_vec(), verts[f.get_v2()].get_vec());
@@ -125,19 +127,32 @@ namespace aline
       Vec2i _v0 = canvas_to_window(viewport_to_canvas(v0));
       Vec2i _v1 = canvas_to_window(viewport_to_canvas(v1));
 
-      int dx = _v1[0] - _v0[0];
-      int dy = _v1[1] - _v0[1];
-      int D = 2*dy - dx;
-      int y = _v0[1];
-
-      for(int x = _v0[0]; x <= _v1[0]; ++x){
-          window.put_pixel(x, y);
-          if(D > 0){
-              y = y + 1;
-              D = D - 2*dx;
+      int x0 = _v0[0];
+      int y0 = _v0[1];
+      int x1 = _v1[0];
+      int y1 = _v1[1];
+      int dx = abs(x1 - x0);
+      int sx = x0 < x1 ? 1 : -1;
+      int dy = -abs(y1 - y0);
+      int sy = y0 < y1 ? 1 : -1;
+      int error = dx + dy;
+      
+      while(true){
+          window.put_pixel(x0, y0);
+          if (x0 == x1 && y0 == y1) break;
+          int e2 = 2 * error;
+          if (e2 >= dy){
+              if (x0 == x1) break;
+              error = error + dy;
+              x0 = x0 + sx;
           }
-          D = D + 2*dy;
+          if (e2 <= dx){
+            if (y0 == y1) break;
+            error = error + dx;
+            y0 = y0 + sy;
+          }
       }
+      //std::cout << _v0 << _v1 << std::endl;
     }
 
   private:
