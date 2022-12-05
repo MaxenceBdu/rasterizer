@@ -3,13 +3,13 @@
 #include "window.h"
 #include <assert.h>
 
+#define VIEWPORT_WIDTH 2.0
+#define WINDOW_WIDTH 1366.0
+#define WINDOW_HEIGHT 768.0
+#define VIEWPORT_HEIGHT (WINDOW_HEIGHT / WINDOW_WIDTH * VIEWPORT_WIDTH)
+
 namespace aline
 {
-  const int VIEWPORT_WIDTH = 2;
-  const int WINDOW_WIDTH = 1920;
-  const int WINDOW_HEIGHT = 1080;
-  real VIEWPORT_HEIGHT = WINDOW_HEIGHT / WINDOW_WIDTH * VIEWPORT_WIDTH;
-
   class Scene
   {
     std::vector<Shape> shapes;
@@ -40,6 +40,7 @@ namespace aline
       window.set_title("Test window");
       window.set_width(WINDOW_WIDTH);
       window.set_height(WINDOW_HEIGHT);
+      window.register_quit_behavior( new QuitButtonBehavior( *this ) );
       window.register_key_behavior(minwin::KEY_ESCAPE, new QuitKeyBehavior(*this));
 
       // load font
@@ -68,7 +69,7 @@ namespace aline
       while (this->running)
       {
         // process keyboard inputs, etc.
-        //window.process_input();
+        window.process_input();
 
         // clear window
         window.clear();
@@ -151,6 +152,17 @@ namespace aline
 
     private:
       Scene &owner;
+    };
+
+    class QuitButtonBehavior : public minwin::IButtonBehavior
+    {
+      public:
+        QuitButtonBehavior( Scene & s ) : owner { s } {}
+        void on_click() const {
+          this->owner.running = false;
+        }
+      private:
+        Scene & owner;
     };
   };
 
