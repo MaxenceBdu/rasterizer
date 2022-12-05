@@ -2,6 +2,7 @@
 
 using namespace aline;
 int main(){
+    
     Scene s = Scene();
     s.initialise();
 
@@ -26,4 +27,6 @@ int main(){
     s.add_shape(carre);
 
     s.run();
+
+    return 0;
 }

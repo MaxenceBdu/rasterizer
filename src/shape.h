@@ -21,6 +21,22 @@ namespace aline {
         Face( uint v0, uint v1, uint v2, const minwin::Color & color ) :v0(v0), v1(v1), v2(v2), color(color) {
             
         }
+
+        inline uint get_v0() const {
+            return v0;
+        }
+
+        inline uint get_v1() const {
+            return v1;
+        }
+
+        inline uint get_v2() const {
+            return v2;
+        }
+
+        inline minwin::Color get_color() const {
+            return color;
+        }
     };
 
     class Shape{
@@ -32,16 +48,16 @@ namespace aline {
         }
 
         // Returns the name of the face.
-        std::string get_name() const{
+        inline std::string get_name() const{
             return name;
         }
         // Returns the list of vertices.
-        std::vector<Vertex> get_vertices() const{
+        inline std::vector<Vertex> get_vertices() const{
             return vertices;
         }
         
         // Returns the list of faces
-        std::vector<Face> get_faces() const{
+        inline std::vector<Face> get_faces() const{
             return faces;
         }
         
