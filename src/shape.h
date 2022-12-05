@@ -12,6 +12,10 @@ namespace aline {
             vec = c;
             this->h = h;
         }
+
+        inline Vec2r get_vec() const {
+            return vec;
+        }
     };
 
     class Face{
