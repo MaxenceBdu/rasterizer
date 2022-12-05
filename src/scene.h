@@ -119,24 +119,24 @@ namespace aline
     }
 
     // Draws a line from v0 to v1 using the current drawing color.
+    // I use Bresenham's algorithm
     void draw_line(const Vec2r &v0, const Vec2r &v1) const
     {
       Vec2i _v0 = canvas_to_window(viewport_to_canvas(v0));
       Vec2i _v1 = canvas_to_window(viewport_to_canvas(v1));
 
-      int dx = _v1[0] - _v0[0], dy = _v1[1] - _v0[1];
-      int ax = dx << 1, ay = dy << 1;
-      int d = ay - ax;
+      int dx = _v1[0] - _v0[0];
+      int dy = _v1[1] - _v0[1];
+      int D = 2*dy - dx;
       int y = _v0[1];
-      for (int x = _v0[0]; x <= _v1[0]; ++x)
-      {
-        window.put_pixel(x, y);
-        if (d >= 0)
-        {
-          ++y;
-          d = d - ax;
-        }
-        d = d + ay;
+
+      for(int x = _v0[0]; x <= _v1[0]; ++x){
+          window.put_pixel(x, y);
+          if(D > 0){
+              y = y + 1;
+              D = D - 2*dx;
+          }
+          D = D + 2*dy;
       }
     }
 
