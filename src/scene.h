@@ -5,14 +5,13 @@
 
 namespace aline
 {
+  const int VIEWPORT_WIDTH = 2;
+  const int WINDOW_WIDTH = 1920;
+  const int WINDOW_HEIGHT = 1080;
+  real VIEWPORT_HEIGHT = WINDOW_HEIGHT / WINDOW_WIDTH * VIEWPORT_WIDTH;
 
   class Scene
   {
-    static const int VIEWPORT_WIDTH = 2;
-    static const int WINDOW_WIDTH = 1920;
-    static const int WINDOW_HEIGHT = 1080;
-    static constexpr real VIEWPORT_HEIGHT = WINDOW_HEIGHT / WINDOW_WIDTH * VIEWPORT_WIDTH;
-
     std::vector<Shape> shapes;
     minwin::Window window;
     bool running;
