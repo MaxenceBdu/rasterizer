@@ -21,16 +21,20 @@ namespace aline
     std::vector<Shape> shapes;
     minwin::Window window;
     bool running;
-    minwin::Text text;
+    minwin::Text text1;
+    minwin::Text text2;
     DrawMode draw_mode;
 
   public:
     Scene()
     {
       shapes = std::vector<Shape>();
-      text.set_pos(10, 10);
-      text.set_string("Press ESC to quit.");
-      text.set_color(minwin::RED);
+      text1.set_pos(10, 10);
+      text1.set_string("Press ESC to quit");
+      text1.set_color(minwin::RED);
+      text2.set_pos(10, 30);
+      text2.set_string("Press SPACE to change mode");
+      text2.set_color(minwin::RED);
       running = true;
       draw_mode = wireframe;
     }
@@ -95,7 +99,8 @@ namespace aline
         window.clear();
 
         // draw text
-        window.render_text(text);
+        window.render_text(text1);
+        window.render_text(text2);
 
         for (Shape s : shapes)
         {
