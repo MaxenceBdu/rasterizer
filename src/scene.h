@@ -3,14 +3,18 @@
 #include "window.h"
 #include <assert.h>
 
-#define VIEWPORT_WIDTH 2.0
-#define WINDOW_WIDTH 768.0
+#define CANVAS_DIM 768.0
+#define WINDOW_WIDTH 1366.0
 #define WINDOW_HEIGHT 768.0
-#define VIEWPORT_HEIGHT (WINDOW_HEIGHT / WINDOW_WIDTH * VIEWPORT_WIDTH)
+#define VIEWPORT_WIDTH 2.0
+#define VIEWPORT_HEIGHT (CANVAS_DIM / CANVAS_DIM * VIEWPORT_WIDTH)
+
+// X_DIFF is useful to center the drawing 
+#define X_DIFF (WINDOW_WIDTH - CANVAS_DIM) / 2
 
 namespace aline
 {
-  enum DrawMode { wireframe, filled };
+  enum DrawMode { wireframe, solid };
 
   class Scene
   {
@@ -37,7 +41,7 @@ namespace aline
 
     void change_draw_mode(){
       if(draw_mode == wireframe)
-        draw_mode = filled;
+        draw_mode = solid;
       else
         draw_mode = wireframe;
     }
@@ -103,12 +107,12 @@ namespace aline
             Vec2r v0 = verts[f.get_v0()].get_vec();
             Vec2r v1 = verts[f.get_v1()].get_vec();
             Vec2r v2 = verts[f.get_v2()].get_vec();
-            
+
             if(draw_mode == wireframe){
               // draw wireframe triangle
               window.set_draw_color(minwin::WHITE);
               draw_wireframe_triangle(v0,v1,v2);
-            }else if(draw_mode == filled){
+            }else if(draw_mode == solid){
               // draw current face but filled
               window.set_draw_color(f.get_color());
               draw_filled_triangle(v0,v1, v2);
@@ -136,13 +140,13 @@ namespace aline
       if (VIEWPORT_HEIGHT <= 0)
         throw std::runtime_error("Viewport height <= 0");
 
-      return Vec2r({point[0] * WINDOW_WIDTH / VIEWPORT_WIDTH, point[1] * WINDOW_HEIGHT / VIEWPORT_HEIGHT});
+      return Vec2r({point[0] * CANVAS_DIM / VIEWPORT_WIDTH, point[1] * CANVAS_DIM / VIEWPORT_HEIGHT});
     }
 
     // Converts canvas coordinates of a point to window (screen) coordinates.
     Vec2i canvas_to_window(const Vec2r &point) const
     {
-      return Vec2i({(int)std::round(WINDOW_WIDTH / 2 + point[0]), (int)std::round(WINDOW_HEIGHT / 2 - point[1])});
+      return Vec2i({(int)std::round(CANVAS_DIM / 2 + point[0]), (int)std::round(CANVAS_DIM / 2 - point[1])});
     }
 
     // Draws a line from v0 to v1 using the current drawing color.
@@ -152,10 +156,8 @@ namespace aline
       Vec2i _v0 = canvas_to_window(viewport_to_canvas(v0));
       Vec2i _v1 = canvas_to_window(viewport_to_canvas(v1));
 
-      int x0 = _v0[0];
-      int y0 = _v0[1];
-      int x1 = _v1[0];
-      int y1 = _v1[1];
+      int x0 = _v0[0], y0 = _v0[1];
+      int x1 = _v1[0], y1 = _v1[1];
       int dx = abs(x1 - x0);
       int sx = x0 < x1 ? 1 : -1;
       int dy = -abs(y1 - y0);
@@ -164,7 +166,7 @@ namespace aline
 
       while (true)
       {
-        window.put_pixel(x0, y0);
+        window.put_pixel(x0+std::round(X_DIFF), y0);
         if (x0 == x1 && y0 == y1)
           break;
         int e2 = 2 * error;
@@ -197,21 +199,26 @@ namespace aline
       Vec2i _v1 = canvas_to_window(viewport_to_canvas(v1));
       Vec2i _v2 = canvas_to_window(viewport_to_canvas(v2));
 
-      if (_v1[1] < _v0[1])
+      if(_v1[1] < _v0[1])
         std::swap(_v1, _v0);
-      if (_v2[1] < _v0[1])
+      if(_v2[1] < _v0[1])
         std::swap(_v2, _v0);
-      if (_v2[1] < _v1[1])
+      if(_v2[1] < _v1[1])
         std::swap(_v2, _v1);
 
-      std::vector<int> x02 = interpolate(_v0[1], _v0[0], _v2[1], _v2[0]);
-      std::vector<int> x01 = interpolate(_v0[1], _v0[0], _v1[1], _v1[0]);
-      std::vector<int> x12 = interpolate(_v1[1], _v1[0], _v2[1], _v2[0]);
+      // refresh variables in case of swap
+      int x0 = _v0[0], y0 = _v0[1];
+      int x1 = _v1[0], y1 = _v1[1];
+      int x2 = _v2[0], y2 = _v2[1];
+
+      std::vector<real> x02 = interpolate(y0, x0, y2, x2);
+      std::vector<real> x01 = interpolate(y0, x0, y1, x1);
+      std::vector<real> x12 = interpolate(y1, x1, y2, x2);
       x01.pop_back();
-      std::vector<int> x012(x01);
+      std::vector<real> x012(x01);
       x012.insert(x012.end(), x12.begin(), x12.end());
 
-      std::vector<int> x_left, x_right;
+      std::vector<real> x_left, x_right;
       int m = (int)std::round(x012.size() / 2);
       if (x02[m] < x012[m])
       {
@@ -224,20 +231,19 @@ namespace aline
         x_right = x02;
       }
 
-      for (int y = _v0[1]; y <= _v2[1]; ++y)
-        for (int x = x_left[y - _v0[1]]; x <= x_right[y - _v0[1]]; ++x)
-          window.put_pixel(x, y);
+      for (int y = y0; y <= y2; ++y)
+        for (int x = (int)std::round(x_left[y - y0]); x <= (int)std::round(x_right[y - y0]); ++x)
+          window.put_pixel(x+std::round(X_DIFF), y);
     }
 
-    std::vector<int> interpolate(int i0, int d0, int i1, int d1) const
+    std::vector<real> interpolate(int i0, real d0, int i1, real d1) const
     {
       if (i0 == i1)
-        return std::vector<int>(1, d0);
+        return std::vector<real>(1, d0);
 
-      int a = (int)std::round((d0 - d1) / (i0 - i1));
-      int d = d0;
-      std::vector<int> values;
-
+      real a = (d0 - d1) / (i0 - i1);
+      real d = d0;
+      std::vector<real> values;
       for (int i = i0; i <= i1; ++i)
       {
         values.push_back(d);
