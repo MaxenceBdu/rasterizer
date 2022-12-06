@@ -20,7 +20,6 @@ namespace aline
   public:
     Scene()
     {
-      std::cout << VIEWPORT_HEIGHT << std::endl;
       shapes = std::vector<Shape>();
       text.set_pos(10, 10);
       text.set_string("Press ESC to quit.");
@@ -38,7 +37,7 @@ namespace aline
     void initialise()
     {
       window = minwin::Window();
-      window.set_title("Test window");
+      window.set_title("FMJ - Rasterizer");
       window.set_width(WINDOW_WIDTH);
       window.set_height(WINDOW_HEIGHT);
       window.register_quit_behavior( new QuitButtonBehavior( *this ) );
