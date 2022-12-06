@@ -117,7 +117,7 @@ namespace aline
     // Converts canvas coordinates of a point to window (screen) coordinates.
     Vec2i canvas_to_window(const Vec2r &point) const
     {
-      return Vec2i({WINDOW_WIDTH / 2 + point[0], WINDOW_HEIGHT / 2 - point[1]});
+      return Vec2i({(int) std::round(WINDOW_WIDTH / 2 + point[0]), (int)std::round(WINDOW_HEIGHT / 2 - point[1])});
     }
 
     // Draws a line from v0 to v1 using the current drawing color.
