@@ -219,7 +219,7 @@ namespace aline
       x012.insert(x012.end(), x12.begin(), x12.end());
 
       std::vector<real> x_left, x_right;
-      int m = (int)std::round(x012.size() / 2);
+      int m = (int)std::floor(x012.size() / 2);
       if (x02[m] < x012[m])
       {
         x_left = x02;
