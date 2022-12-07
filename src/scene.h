@@ -9,12 +9,13 @@
 #define VIEWPORT_WIDTH 2.0
 #define VIEWPORT_HEIGHT (CANVAS_DIM / CANVAS_DIM * VIEWPORT_WIDTH)
 
-// X_DIFF is useful to center the drawing 
-#define X_DIFF (WINDOW_WIDTH - CANVAS_DIM) / 2
+// X_DIFF and Y_DIFF are useful to center the drawing 
+#define X_DIFF std::round((WINDOW_WIDTH - CANVAS_DIM) / 2)
+#define Y_DIFF std::round((WINDOW_HEIGHT - CANVAS_DIM) / 2)
 
 namespace aline
 {
-  enum DrawMode { wireframe, solid };
+  enum DrawMode { wireframe, solid, shaded };
 
   class Scene
   {
@@ -44,10 +45,19 @@ namespace aline
     }
 
     void change_draw_mode(){
-      if(draw_mode == wireframe)
-        draw_mode = solid;
-      else
-        draw_mode = wireframe;
+      switch(draw_mode) {
+        case wireframe:
+          draw_mode = solid;
+          break;
+        case solid:
+          draw_mode = shaded;
+          break;
+        case shaded:
+          draw_mode = wireframe;
+          break;
+        default:
+          break;
+      }
     }
 
     // Adds a shape to the scene.
@@ -113,14 +123,22 @@ namespace aline
             Vec2r v1 = verts[f.get_v1()].get_vec();
             Vec2r v2 = verts[f.get_v2()].get_vec();
 
-            if(draw_mode == wireframe){
+            switch (draw_mode)
+            {
+            case wireframe:
               // draw wireframe triangle
               window.set_draw_color(minwin::WHITE);
               draw_wireframe_triangle(v0,v1,v2);
-            }else if(draw_mode == solid){
+              break;
+            case solid:
               // draw current face but filled
               window.set_draw_color(f.get_color());
               draw_filled_triangle(v0,v1, v2);
+              break;
+            case shaded:
+              break;
+            default:
+              break;
             }
           }
         }
@@ -171,7 +189,7 @@ namespace aline
 
       while (true)
       {
-        window.put_pixel(x0+std::round(X_DIFF), y0);
+        window.put_pixel(x0+X_DIFF, y0+Y_DIFF);
         if (x0 == x1 && y0 == y1)
           break;
         int e2 = 2 * error;
@@ -238,7 +256,7 @@ namespace aline
 
       for (int y = y0; y <= y2; ++y)
         for (int x = (int)std::round(x_left[y - y0]); x <= (int)std::round(x_right[y - y0]); ++x)
-          window.put_pixel(x+std::round(X_DIFF), y);
+          window.put_pixel(x+X_DIFF, y+Y_DIFF);
     }
 
     std::vector<real> interpolate(int i0, real d0, int i1, real d1) const
