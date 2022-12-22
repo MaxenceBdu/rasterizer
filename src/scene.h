@@ -15,7 +15,6 @@
 #define X_DIFF std::round((WINDOW_WIDTH - CANVAS_DIM) / 2)
 #define Y_DIFF std::round((WINDOW_HEIGHT - CANVAS_DIM) / 2)
 
-
 enum DrawMode
 {
   wireframe,
@@ -63,12 +62,6 @@ public:
     default:
       break;
     }
-  }
-
-  // Adds a Object to the scene.
-  void add_object(const Object &o)
-  {
-    objects.push_back(o);
   }
 
   // Opens a MinWin window and sets its parameters (for instance, title and size).
@@ -121,12 +114,25 @@ public:
       {
         std::vector<Face> faces = o.get_faces();
         std::vector<Vertex> verts = o.get_vertices();
+
+        for (Face f : faces)
+        {
+          std::cout << f.get_v0() << " " << f.get_v1() << " " << f.get_v2() << std::endl;
+          std::cout << std::endl;
+        }
+
+        for (Vertex v : verts)
+        {
+          std::cout << v.get_vec()[0] << " " << v.get_vec()[1] << " " << v.get_vec()[2] << std::endl;
+          std::cout << std::endl;
+        }
+
         for (Face f : faces)
         {
           // set draw color with the color of current face
-          aline::Vec2r v0 = verts[f.get_v0()].get_vec();
-          aline::Vec2r v1 = verts[f.get_v1()].get_vec();
-          aline::Vec2r v2 = verts[f.get_v2()].get_vec();
+          aline::Vec2r v0 = perspective_projection(verts[f.get_v0()].get_vec(), 1.0);
+          aline::Vec2r v1 = perspective_projection(verts[f.get_v1()].get_vec(), 1.0);
+          aline::Vec2r v2 = perspective_projection(verts[f.get_v2()].get_vec(), 1.0);
 
           switch (draw_mode)
           {
@@ -153,38 +159,51 @@ public:
     window.close();
   }
 
-  void load_obj_file(const char * file_name){
+  void load_obj_file(const char *file_name)
+  {
     std::ifstream f(file_name);
     std::string s;
 
     std::vector<Vertex> verts;
     std::vector<Face> faces;
-    
-    while(f.good()){
-      getline(f,s);
+
+    while (f.good())
+    {
+      getline(f, s);
 
       char first = s[0];
-      if(first == 'f'){
+      if (first == 'f')
+      {
         std::vector<uint> ids;
-        for(char c : s)
-          if(c != ' ')
-            ids.push_back((uint)c);
-        faces.push_back(Face(ids[0]-1,ids[1]-1,ids[2]-1, minwin::WHITE));
-      }else if(first == 'v'){
+        std::istringstream iss(s);
+        char pass; // pass the 'v'
+        iss >> pass;
+        do
+        {
+          uint subs;
+          iss >> subs;
+          ids.push_back(subs);
+        } while (iss);
+        faces.push_back(Face(ids[0] - 1, ids[1] - 1, ids[2] - 1, minwin::WHITE));
+      }
+      else if (first == 'v')
+      {
         std::vector<aline::real> values;
         std::istringstream iss(s);
-        std::string pass;
+        char pass; // pass the 'v'
         iss >> pass;
-        do{
-          std::string subs;
+        do
+        {
+          aline::real subs;
           iss >> subs;
-          values.push_back(std::stod(subs));
-        }while(iss);
-        verts.push_back(Face(values[0],values[1],values[2], 1.0));
+          values.push_back(subs);
+        } while (iss);
+        verts.push_back(Vertex(aline::Vec3r({values[0], values[1], values[2]}), 1.0));
       }
     }
-    Shape shape = Shape(file_name, verts, faces);
-    Object o(shape, {0.0,0.0,0.0},{0.0,0.0,0.0},{0.0,0.0,0.0});
+
+    Shape shape(file_name, verts, faces);
+    Object o(shape, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
     this->add_object(o);
   }
 
@@ -315,8 +334,15 @@ private:
     return values;
   }
 
-  aline::Vec2r perspective_projection( const aline::Vec4r & v, aline::real d ){
-    return aline::Vec2r({-(d/v[2]-v[0], -(d/v[2]*v[1]))});
+  aline::Vec2r perspective_projection(const aline::Vec3r &v, aline::real d)
+  {
+    return aline::Vec2r({-(d / v[2] * v[0]), -(d / v[2] * v[1])});
+  }
+
+  // Adds a Object to the scene.
+  void add_object(const Object& o)
+  {
+    objects.push_back(o);
   }
 
   class QuitKeyBehavior : public minwin::IKeyBehavior
