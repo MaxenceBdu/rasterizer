@@ -47,11 +47,8 @@ class Shape{
     std::string name;
     std::vector<Vertex> vertices;
     std::vector<Face> faces;
-
 public: 
-    Shape(){}
-
-    Shape( const std::string & name, const std::vector<Vertex>& vertices, const std::vector<Face>& faces ) : name(name), vertices(vertices), faces(faces){
+    Shape( const std::string & name, const std::vector<Vertex> & vertices, const std::vector<Face> & faces ) : name(name), vertices(vertices), faces(faces){
     }
 
     // Returns the name of the face.
@@ -67,4 +64,5 @@ public:
     inline std::vector<Face> get_faces() const{
         return faces;
     }
+    
 };

@@ -4,9 +4,6 @@
 #include <sstream>
 #include <float.h>
 
-#ifndef VECTOR_H
-#define VECTOR_H
-
 namespace aline
 {
 
@@ -300,5 +297,3 @@ namespace aline
     using Vec3i = Vector<int,3ul>;
     using Vec3r = Vector<real,3ul>;
 }
-
-#endif
