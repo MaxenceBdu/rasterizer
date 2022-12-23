@@ -8,12 +8,10 @@ class Vertex {
     aline::Vec3r vec;
     aline::real h;
 public:
-    Vertex( const Vec3r & c, real h ){
-        vec = c;
-        this->h = h;
+    Vertex( const aline::Vec3r & c, aline::real h ) : vec(c), h(h){
     }
 
-    inline Vec3r get_vec() const {
+    inline aline::Vec3r get_vec() const {
         return vec;
     }
 };
