@@ -278,6 +278,10 @@ private:
     return values;
   }
 
+  aline::Vec2r perspective_projection(const aline::Vec3r& v, aline::real d){
+    return aline::Vec2r({-d/v[2]*v[0],-d/v[2]*v[1]});
+  }
+
   class QuitKeyBehavior : public minwin::IKeyBehavior
   {
   public:
