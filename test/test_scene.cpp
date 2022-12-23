@@ -1,4 +1,5 @@
 #include "scene.h"
+#include <fstream>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
     vector<Face> faces;
     while (f.good())
     {
-      getline(f, s);
+      getline(f, str);
 
       if (str[0] == 'f')
       {
@@ -47,8 +48,10 @@ int main(int argc, char *argv[])
         verts.push_back(Vertex(aline::Vec3r({values[0], values[1], values[2]}), 1.0));
       }
     }
+    
     Shape shape(argv[i], verts, faces);
     Object o(shape, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    
     s.add_object(o);
   }
 

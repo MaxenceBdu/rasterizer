@@ -13,7 +13,6 @@
 #define X_DIFF std::round((WINDOW_WIDTH - CANVAS_DIM) / 2)
 #define Y_DIFF std::round((WINDOW_HEIGHT - CANVAS_DIM) / 2)
 
-
 enum DrawMode
 {
   wireframe,
@@ -121,10 +120,9 @@ public:
         std::vector<Vertex> verts = o.get_vertices();
         for (Face f : faces)
         {
-          // set draw color with the color of current face
-          aline::Vec2r v0 = perspective_projection(verts[f.get_v0()].get_vec(),1.0);
-          aline::Vec2r v1 = perspective_projection(verts[f.get_v1()].get_vec(),1.0);
-          aline::Vec2r v2 = perspective_projection(verts[f.get_v2()].get_vec(),1.0);
+          aline::Vec2r v0 = perspective_projection(verts[f.get_v0()].get_vec(), 1.0);
+          aline::Vec2r v1 = perspective_projection(verts[f.get_v1()].get_vec(), 1.0);
+          aline::Vec2r v2 = perspective_projection(verts[f.get_v2()].get_vec(), 1.0);
 
           switch (draw_mode)
           {
@@ -281,8 +279,12 @@ private:
   // The perspective projection of the three dimentional vector v given in homogeneous
   // coordinates. The value of d is the distance from the camera to the viewport (also
   // called projection plane)
-  aline::Vec2r perspective_projection(const aline::Vec3r& v, aline::real d){
-    return aline::Vec2r({-d/v[2]*v[0],-d/v[2]*v[1]});
+  aline::Vec2r perspective_projection(const aline::Vec3r &v, aline::real d)
+  {
+    if(v[2] == 0)
+      return aline::Vec2r({0, 0});
+    else
+      return aline::Vec2r({-d / v[2] * v[0], -d / v[2] * v[1]});
   }
 
   class QuitKeyBehavior : public minwin::IKeyBehavior
