@@ -1,4 +1,4 @@
-#include "shape.h"
+#include "object.h"
 #include <string>
 #include "window.h"
 #include <assert.h>

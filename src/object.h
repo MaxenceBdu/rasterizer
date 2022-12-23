@@ -64,3 +64,23 @@ public:
     }
     
 };
+
+class Object {
+    Shape& shape;
+    aline::Vec3r& translation;
+    aline::Vec3r& rotation;
+    aline::Vec3r& scale;
+
+    Object(){}
+public:
+    Object( const Shape & shape, const Vec3r & translation, const Vec3r & rotation, const Vec3r & scale ){
+        this->shape = shape;
+        this->translation = translation;
+        this->rotation = rotation;
+        this->scale = scale;
+    }
+
+    aline::Matrix<aline::real,4ul,4ul> transform(){
+
+    }
+};
