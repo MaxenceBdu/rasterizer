@@ -5,15 +5,15 @@
 
 namespace aline {
     class Vertex {
-        Vec2r vec;
+        Vec3r vec;
         real h;
     public:
-        Vertex( const Vec2r & c, real h ){
+        Vertex( const Vec3r & c, real h ){
             vec = c;
             this->h = h;
         }
 
-        inline Vec2r get_vec() const {
+        inline Vec3r get_vec() const {
             return vec;
         }
     };
