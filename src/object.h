@@ -80,7 +80,17 @@ public:
         this->scale = scale;
     }
 
-    aline::Matrix<aline::real,4ul,4ul> transform(){
+    aline::Matrix<aline::real,4ul,3ul> transform(){
 
+    }
+
+    // The list of vertices of an object.
+    std::vector<Vertex> get_vertices(){
+        return shape.get_vertices();
+    }
+
+    // The list of faces of an object
+    std::vector<Face> get_faces(){
+        return shape.get_faces();
     }
 };
