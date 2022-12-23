@@ -6,7 +6,6 @@
 
 namespace aline
 {
-
     template <class T, int N>
     class Vector
     {

@@ -1,6 +1,5 @@
 #include "scene.h"
 
-using namespace aline;
 int main(){
     
     Scene s = Scene();
