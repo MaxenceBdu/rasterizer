@@ -2,32 +2,57 @@
 
 using namespace std;
 
-int main(){
-    
-    Scene s = Scene();
-    s.initialise();
+int main(int argc, char *argv[])
+{
 
-    vector<Vertex> verts = { 
-        Vertex({-1.0, 0.0 }, 1.0), 
-        Vertex({-0.5,-0.75}, 1.0), 
-        Vertex({ 0.5,-0.75}, 1.0), 
-        Vertex({ 1.0, 0.0 }, 1.0), 
-        Vertex({ 0.5, 0.75}, 1.0), 
-        Vertex({-0.5, 0.75}, 1.0)
-    };
-    
-    vector<Face> faces = { 
-        Face(0,1,5, minwin::RED), 
-        Face(1,2,4, minwin::BLUE), 
-        Face(1,4,5, minwin::GREEN), 
-        Face(2,3,4, minwin::MAGENTA)
-    };
-    
-    Shape carre = Shape("carré", verts, faces);
+  Scene s = Scene();
+  s.initialise();
 
-    s.add_shape(carre);
+  for (int i = 1; i < argc; ++i)
+  {
+    ifstream f(argv[i]);
+    string str;
+    vector<Vertex> verts;
+    vector<Face> faces;
+    while (f.good())
+    {
+      getline(f, s);
 
-    s.run();
+      if (str[0] == 'f')
+      {
+        std::vector<uint> ids;
+        std::istringstream iss(str);
+        char pass; // pass the 'v'
+        iss >> pass;
+        do
+        {
+          uint subs;
+          iss >> subs;
+          ids.push_back(subs);
+        } while (iss);
+        faces.push_back(Face(ids[0] - 1, ids[1] - 1, ids[2] - 1, minwin::WHITE));
+      }
+      else if (str[0] == 'v')
+      {
+        std::vector<aline::real> values;
+        std::istringstream iss(str);
+        char pass; // pass the 'v'
+        iss >> pass;
+        do
+        {
+          aline::real subs;
+          iss >> subs;
+          values.push_back(subs);
+        } while (iss);
+        verts.push_back(Vertex(aline::Vec3r({values[0], values[1], values[2]}), 1.0));
+      }
+    }
+    Shape shape(argv[i], verts, faces);
+    Object o(shape, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    s.add_object(o);
+  }
 
-    return 0;
+  s.run();
+
+  return 0;
 }

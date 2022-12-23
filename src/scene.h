@@ -22,7 +22,7 @@ enum DrawMode
 
 class Scene
 {
-  std::vector<Shape> shapes;
+  std::vector<Object> objects;
   minwin::Window window;
   bool running;
   minwin::Text text1;
@@ -32,7 +32,7 @@ class Scene
 public:
   Scene()
   {
-    shapes = std::vector<Shape>();
+    objects = std::vector<Object>();
     text1.set_pos(10, 10);
     text1.set_string("Press ESC to quit");
     text1.set_color(minwin::RED);
@@ -64,9 +64,9 @@ public:
   }
 
   // Adds a shape to the scene.
-  void add_shape(const Shape &s)
+  void add_object(const Object &s)
   {
-    shapes.push_back(s);
+    objects.push_back(s);
   }
 
   // Opens a MinWin window and sets its parameters (for instance, title and size).
@@ -94,9 +94,9 @@ public:
     }
   }
 
-  /* Draws the shapes previously added to the scene on the window surface1 and process
+  /* Draws the objects previously added to the scene on the window surface1 and process
   users inputs (e.g., click on ‘X’ to quit). It must keep the window open and showing
-  the shapes until the user decides to quit the application, either by clicking on the
+  the objects until the user decides to quit the application, either by clicking on the
   button ‘X’ or via some keyboard command (e.g., ‘ESC’ or ‘Q’). It must also permit
   the user to change the “view mode” of the scene. Via some keyboard command, the
   user can change from a “wireframe” mode of the scene to a “solid” and a “shaded”
@@ -115,16 +115,16 @@ public:
       window.render_text(text1);
       window.render_text(text2);
 
-      for (Shape s : shapes)
+      for (Object o : objects)
       {
-        std::vector<Face> faces = s.get_faces();
-        std::vector<Vertex> verts = s.get_vertices();
+        std::vector<Face> faces = o.get_faces();
+        std::vector<Vertex> verts = o.get_vertices();
         for (Face f : faces)
         {
           // set draw color with the color of current face
-          aline::Vec2r v0 = verts[f.get_v0()].get_vec();
-          aline::Vec2r v1 = verts[f.get_v1()].get_vec();
-          aline::Vec2r v2 = verts[f.get_v2()].get_vec();
+          aline::Vec2r v0 = perspective_projection(verts[f.get_v0()].get_vec(),1.0);
+          aline::Vec2r v1 = perspective_projection(verts[f.get_v1()].get_vec(),1.0);
+          aline::Vec2r v2 = perspective_projection(verts[f.get_v2()].get_vec(),1.0);
 
           switch (draw_mode)
           {
@@ -153,7 +153,7 @@ public:
 
 private:
   /*Closes the MinWin window and frees eventual allocated memory. (For example, if
-  your function add_shape() creates a list of shapes, you must clear the list.)*/
+  your function add_shape() creates a list of objects, you must clear the list.)*/
   void shutdown()
   {
     this->running = false;
@@ -175,7 +175,7 @@ private:
   }
 
   // Draws a line from v0 to v1 using the current drawing color.
-  // I use Bresenham's algorithm
+  // I use Bresenham's algorithm (Wikipedia)
   void draw_line(const aline::Vec2r &v0, const aline::Vec2r &v1) const
   {
     aline::Vec2i _v0 = canvas_to_window(viewport_to_canvas(v0));
@@ -278,6 +278,9 @@ private:
     return values;
   }
 
+  // The perspective projection of the three dimentional vector v given in homogeneous
+  // coordinates. The value of d is the distance from the camera to the viewport (also
+  // called projection plane)
   aline::Vec2r perspective_projection(const aline::Vec3r& v, aline::real d){
     return aline::Vec2r({-d/v[2]*v[0],-d/v[2]*v[1]});
   }
