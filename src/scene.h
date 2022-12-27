@@ -3,7 +3,7 @@
 #include "window.h"
 #include <assert.h>
 
-#define CANVAS_DIM 768.0
+#define CANVAS_DIM 700
 #define WINDOW_WIDTH 1366.0
 #define WINDOW_HEIGHT 768.0
 #define VIEWPORT_WIDTH 2.0
@@ -118,11 +118,17 @@ public:
       {
         std::vector<Face> faces = o.get_faces();
         std::vector<Vertex> verts = o.get_vertices();
+
         for (Face f : faces)
         {
-          aline::Vec2r v0 = perspective_projection(verts[f.get_v0()].get_vec(), 1.0);
-          aline::Vec2r v1 = perspective_projection(verts[f.get_v1()].get_vec(), 1.0);
-          aline::Vec2r v2 = perspective_projection(verts[f.get_v2()].get_vec(), 1.0);
+          // make homogeneous coordinates and perspective projection
+          aline::Vec3r _v0 = verts[f.get_v0()].get_vec();
+          aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
+          aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
+ 
+          aline::Vec2r v0 = perspective_projection(aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0})*o.transform(), 1.0);
+          aline::Vec2r v1 = perspective_projection(aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0})*o.transform(), 1.0);
+          aline::Vec2r v2 = perspective_projection(aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0})*o.transform(), 1.0);
 
           switch (draw_mode)
           {
@@ -134,8 +140,9 @@ public:
           case solid:
             // draw current face but filled
             window.set_draw_color(f.get_color());
-            draw_wireframe_triangle(v0, v1, v2);
             draw_filled_triangle(v0, v1, v2);
+            window.set_draw_color(minwin::BLACK);
+            draw_wireframe_triangle(v0, v1, v2);
             break;
           default:
             break;
@@ -279,12 +286,17 @@ private:
   // The perspective projection of the three dimentional vector v given in homogeneous
   // coordinates. The value of d is the distance from the camera to the viewport (also
   // called projection plane)
-  aline::Vec2r perspective_projection(const aline::Vec3r &v, aline::real d)
+  aline::Vec2r perspective_projection(const aline::Vec4r &v, aline::real d)
   {
-    if(v[2] == 0)
-      return aline::Vec2r({0, 0});
+    // project in 3d
+    aline::Vec3r projec_3d({v[0]/v[3], v[1]/v[3], v[2]/v[3]});
+
+
+    // project in 2d
+    if(projec_3d[2] == 0)
+      return aline::Vec2r({0.0, 0.0});
     else
-      return aline::Vec2r({-d / v[2] * v[0], -d / v[2] * v[1]});
+      return aline::Vec2r({projec_3d[0]/(projec_3d[2]), projec_3d[1]/(projec_3d[2])});
   }
 
   class QuitKeyBehavior : public minwin::IKeyBehavior

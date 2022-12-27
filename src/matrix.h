@@ -275,6 +275,23 @@ namespace aline
     return result;
   }
 
+  // The product of a vector and a matrix.
+  template <class T, int M, int N>
+  Vector<T, N> operator*(const Vector<T, N> &v, const Matrix<T, N, M> &m)
+  {
+    Vector<T, N> result = Vector<T, N>();
+
+    for (int i = 0; i < M; ++i)
+    {
+      //Vector<T, N> prod = v * m[i];
+      for (int j = 0; j < N; ++j)
+      {
+        result[i] += v[i]*m[j][i];
+      }
+    }
+    return result;
+  }
+
   // The product of two matrices.
   template <class T, int M, int N, int O>
   Matrix<T, M, O> operator*(const Matrix<T, M, N> &m1, const Matrix<T, N, O> &m2)

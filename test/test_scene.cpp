@@ -5,10 +5,11 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-
+  cout << Y_DIFF << endl;
   Scene s = Scene();
   s.initialise();
 
+  // load object from file
   for (int i = 1; i < argc; ++i)
   {
     ifstream f(argv[i]);
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
     }
     
     Shape shape(argv[i], verts, faces);
-    Object o(shape, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    Object o(shape, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {1.0, 1.0, 1.0});
     
     s.add_object(o);
   }

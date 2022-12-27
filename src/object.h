@@ -1,7 +1,7 @@
 #include "color.h"
 #include <string>
 #include <vector>
-#include "vector.h"
+#include "matrix.h"
 
 class Vertex
 {
@@ -104,9 +104,9 @@ public:
     this->scale = aline::Vec3r(scale);
   }
 
-  /*aline::Matrix<aline::real,4ul,3ul> transform(){
-      return;
-  }*/
+  aline::Matrix<aline::real,4ul,4ul> transform(){
+    return aline::Matrix<aline::real,4ul,4ul>({{1.0,0.0,0.0,0.0},{0.0,1.0,0.0,0.0},{0.0,0.0,-1.0,-1.0},{0.0,0.0,0.0,0.0}});
+  }
 
   Shape get_shape(){
     return shape;

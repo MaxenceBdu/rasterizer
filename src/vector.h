@@ -293,4 +293,5 @@ namespace aline
   using Vec2i = Vector<int, 2ul>;
   using Vec2r = Vector<real, 2ul>;
   using Vec3r = Vector<real, 3ul>;
+  using Vec4r = Vector<real, 4ul>;
 }
