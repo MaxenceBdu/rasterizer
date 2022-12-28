@@ -119,35 +119,65 @@ public:
         std::vector<Face> faces = o.get_faces();
         std::vector<Vertex> verts = o.get_vertices();
 
-        for (Face f : faces)
+        switch (draw_mode)
         {
-          // make homogeneous coordinates and perspective projection
-          aline::Vec3r _v0 = verts[f.get_v0()].get_vec();
-          aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
-          aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
- 
-          aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 2.0);
-          aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 2.0);
-          aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 2.0);
-
-          switch (draw_mode)
-          {
           case wireframe:
-            // draw wireframe triangle
-            window.set_draw_color(minwin::WHITE);
-            draw_wireframe_triangle(v0, v1, v2);
+            // draw only vertices
+            for (Face f : faces)
+            {
+              // make homogeneous coordinates and perspective projection
+              aline::Vec3r _v0 = verts[f.get_v0()].get_vec();
+              aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
+              aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
+    
+              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 2.0);
+              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 2.0);
+              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 2.0);
+
+              // draw wireframe triangle
+              window.set_draw_color(minwin::WHITE);
+              draw_wireframe_triangle(v0, v1, v2);
+            }
+            
             break;
           case solid:
-            // draw current face but filled
-            window.set_draw_color(f.get_color());
-            draw_filled_triangle(v0, v1, v2);
-            window.set_draw_color(minwin::BLACK);
-            draw_wireframe_triangle(v0, v1, v2);
+            // draw filled triangles then their outline
+            for (Face f : faces)
+            {
+              // make homogeneous coordinates and perspective projection
+              aline::Vec3r _v0 = verts[f.get_v0()].get_vec();
+              aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
+              aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
+    
+              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 2.0);
+              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 2.0);
+              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 2.0);
+
+              // draw faces filling
+              window.set_draw_color(f.get_color());
+              draw_filled_triangle(v0, v1, v2);
+            }
+            for (Face f : faces)
+            {
+              // make homogeneous coordinates and perspective projection
+              aline::Vec3r _v0 = verts[f.get_v0()].get_vec();
+              aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
+              aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
+    
+              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 2.0);
+              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 2.0);
+              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 2.0);
+
+              // draw faces outline
+              window.set_draw_color(minwin::BLACK);
+              draw_wireframe_triangle(v0, v1, v2);
+            }
             break;
           default:
             break;
-          }
         }
+
+
       }
 
       // display elements drawn so far
