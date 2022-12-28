@@ -130,4 +130,16 @@ public:
   {
     return shape.get_faces();
   }
+
+  void scale_up(){
+    for(int i = 0; i < 3; ++i){
+      scale[i][i]++;
+    }
+  }
+
+  void scale_down(){
+    for(int i = 0; i < 3; ++i){
+      scale[i][i]--;
+    }
+  }
 };

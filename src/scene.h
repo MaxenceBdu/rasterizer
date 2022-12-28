@@ -26,6 +26,8 @@ class Scene
   bool running;
   minwin::Text text1;
   minwin::Text text2;
+  minwin::Text text3;
+  minwin::Text text4;
   DrawMode draw_mode;
 
 public:
@@ -38,6 +40,12 @@ public:
     text2.set_pos(10, 30);
     text2.set_string("Press SPACE to change mode");
     text2.set_color(minwin::RED);
+    text3.set_pos(10, 50);
+    text3.set_string("Press Z to scale up");
+    text3.set_color(minwin::RED);
+    text4.set_pos(10, 70);
+    text4.set_string("Press S to scale down");
+    text4.set_color(minwin::RED);
     running = true;
     draw_mode = wireframe;
   }
@@ -79,6 +87,10 @@ public:
     window.register_key_behavior(minwin::KEY_ESCAPE, new QuitKeyBehavior(*this));
     window.register_key_behavior(minwin::KEY_SPACE, new ChangeDrawModeBehavior(*this));
 
+    // scale keys
+    window.register_key_behavior(minwin::KEY_Z, new ScaleUpBehavior(objects));
+    window.register_key_behavior(minwin::KEY_S, new ScaleDownBehavior(objects));
+
     // load font
     if (not window.load_font("fonts/FreeMonoBold.ttf", 16u))
     {
@@ -113,6 +125,8 @@ public:
       // draw text
       window.render_text(text1);
       window.render_text(text2);
+      window.render_text(text3);
+      window.render_text(text4);
 
       for (Object o : objects)
       {
@@ -130,9 +144,9 @@ public:
               aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
               aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
     
-              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 2.0);
-              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 2.0);
-              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 2.0);
+              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 1.0);
+              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 1.0);
+              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 1.0);
 
               // draw wireframe triangle
               window.set_draw_color(minwin::WHITE);
@@ -149,9 +163,9 @@ public:
               aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
               aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
     
-              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 2.0);
-              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 2.0);
-              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 2.0);
+              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 1.0);
+              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 1.0);
+              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 1.0);
 
               // draw faces filling
               window.set_draw_color(f.get_color());
@@ -318,15 +332,16 @@ private:
   // called projection plane)
   aline::Vec2r perspective_projection(const aline::Vec4r &v, aline::real d)
   {
-    // project in 3d
-    aline::Vec3r projec_3d({v[0]/v[3], v[1]/v[3], v[2]/v[3]});
+    aline::Mat44r m({{-d, 0.0, 0.0, 0.0}, {0.0, -d, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
 
+    // project in 4d
+    aline::Vec4r projec_4d = m*v;
 
     // project in 2d
-    if(projec_3d[2] == 0)
+    if(projec_4d[2] == 0)
       return aline::Vec2r({0.0, 0.0});
     else
-      return aline::Vec2r({projec_3d[0]/(projec_3d[2]), projec_3d[1]/(projec_3d[2])});
+      return aline::Vec2r({projec_4d[0]*(-d/projec_4d[2]), projec_4d[1]*(-d/projec_4d[2])});
   }
 
   class QuitKeyBehavior : public minwin::IKeyBehavior
@@ -368,5 +383,38 @@ private:
 
   private:
     Scene &owner;
+  };
+
+  class ScaleUpBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    ScaleUpBehavior(std::vector<Object>& l) : objects(l) {}
+    void on_press() const {};
+    void on_release() const
+    {
+      for(Object o : objects){
+        o.scale_up();
+        std::cout << o.transform() << std::endl;
+      }
+    }
+
+  private:
+    std::vector<Object>& objects;
+  };
+
+  class ScaleDownBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    ScaleDownBehavior(std::vector<Object>& l) : objects(l) {}
+    void on_press() const {};
+    void on_release() const
+    {
+      for(Object o : objects){
+        o.scale_down();
+      }
+    }
+
+  private:
+    std::vector<Object>& objects;
   };
 };
