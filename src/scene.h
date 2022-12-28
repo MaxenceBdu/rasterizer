@@ -126,9 +126,9 @@ public:
           aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
           aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
  
-          aline::Vec2r v0 = perspective_projection(aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0})*o.transform(), 1.0);
-          aline::Vec2r v1 = perspective_projection(aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0})*o.transform(), 1.0);
-          aline::Vec2r v2 = perspective_projection(aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0})*o.transform(), 1.0);
+          aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 2.0);
+          aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 2.0);
+          aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 2.0);
 
           switch (draw_mode)
           {

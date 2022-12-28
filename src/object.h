@@ -88,24 +88,44 @@ public:
   }
 };
 
+aline::Vec4r w({0.0,0.0,0.0,1.0});
+
 class Object
 {
   Shape shape;
   aline::Vec3r translation;
-  aline::Vec3r rotation;
-  aline::Vec3r scale;
+  aline::Mat33r rotation;
+  aline::Mat33r scale;
 
 public:
-  Object(const Shape& shape, const aline::Vec3r &translation, const aline::Vec3r &rotation, const aline::Vec3r &scale) : shape(shape)
+  Object(const Shape& shape, const aline::Vec3r &translation, const aline::Mat33r &rotation, const aline::Mat33r &scale) : shape(shape)
   {
     this->shape = Shape(shape);
     this->translation = aline::Vec3r(translation);
-    this->rotation = aline::Vec3r(rotation);
-    this->scale = aline::Vec3r(scale);
+    this->rotation = aline::Mat33r(rotation);
+    this->scale = aline::Mat33r(scale);
+
+    std::cout << to_string(transform()) << std::endl;
   }
 
-  aline::Matrix<aline::real,4ul,4ul> transform(){
-    return aline::Matrix<aline::real,4ul,4ul>({{1.0,0.0,0.0,0.0},{0.0,1.0,0.0,0.0},{0.0,0.0,-1.0,-1.0},{0.0,0.0,0.0,0.0}});
+  /*
+    Returns the transform matrix
+
+    Transform matrix has this format :
+
+    (  scale  | translation ) 
+    (---------|------------ )
+    ( 0  0  0 |      1      )
+  */
+  aline::Mat44r transform(){
+    aline::Mat44r res;
+    res[3] = aline::Vec4r(w);
+    for(int i = 0; i < 3; ++i){
+      res[i][3] = translation[i];
+      for(int j = 0; j < 3; ++j)
+        res[i][j] = scale[i][j];
+    }
+    return res;
   }
 
   Shape get_shape(){

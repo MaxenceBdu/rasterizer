@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     }
     
     Shape shape(argv[i], verts, faces);
-    Object o(shape, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {1.0, 1.0, 1.0});
+    Object o(shape, {0.0, 0.0, 0.0}, {{0.0, 0.0, 0.0},{0.0, 0.0, 0.0},{0.0, 0.0, 0.0}}, {{1.0, 0.0, 0.0},{0.0, 1.0, 0.0},{0.0, 0.0, -1.0}});
     
     s.add_object(o);
   }
