@@ -110,8 +110,6 @@ public:
     Returns the transform matrix
 
     Transform matrix = translation * rotation * scaling
-
-    rotation not included for the moment
   */
   aline::Mat44r transform(){
     return translation*rotation*scale;
