@@ -1,11 +1,12 @@
 #include "scene.h"
 #include <fstream>
+#include <regex>
 
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-  cout << Y_DIFF << endl;
+  vector<Shape*> shapes;
   Scene s = Scene();
   s.initialise();
 
@@ -22,8 +23,8 @@ int main(int argc, char *argv[])
 
       if (str[0] == 'f')
       {
-        std::vector<uint> ids;
-        std::istringstream iss(str);
+        vector<uint> ids;
+        istringstream iss(str);
         char pass; // pass the 'v'
         iss >> pass;
         do
@@ -36,8 +37,8 @@ int main(int argc, char *argv[])
       }
       else if (str[0] == 'v')
       {
-        std::vector<aline::real> values;
-        std::istringstream iss(str);
+        vector<aline::real> values;
+        istringstream iss(str);
         char pass; // pass the 'v'
         iss >> pass;
         do
@@ -49,18 +50,22 @@ int main(int argc, char *argv[])
         verts.push_back(Vertex(aline::Vec3r({values[0], values[1], values[2]}), 1.0));
       }
     }
-    
-    Shape shape(argv[i], verts, faces);
-    Object o(shape, 
-      {{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}}, 
-      {{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}}, 
-      {{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, -1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}}
-    );
-    
+
+    shapes.push_back(new Shape(argv[i], verts, faces));
+
+    aline::real z_translate = 3000.0;
+    if(regex_match(argv[i], regex(".*tetrahedron.*"))){
+      z_translate = 100.0;
+    }
+
+    Object o(shapes[shapes.size()-1], {0.0, 0.0, z_translate}, {0.0, 0.0, 0.0},  {1.0, 1.0, 1.0});
     s.add_object(o);
   }
 
   s.run();
 
+  for(Shape* p: shapes){
+    delete p;
+  }
   return 0;
 }

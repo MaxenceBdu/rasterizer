@@ -234,8 +234,6 @@ namespace aline
     Matrix<T, M, N> result = Matrix<T, M, N>();
     for (int i = 0; i < M; ++i)
       result[i] = m1[i] - m2[i];
-    // for (int j = 0; j < N; ++j)
-    // result[i][j] = m1[i][j] - m2[i][j];
 
     return result;
   }
