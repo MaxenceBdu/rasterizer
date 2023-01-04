@@ -25,24 +25,31 @@ class Scene
   std::vector<Object> objects;
   minwin::Window window;
   bool running;
-  minwin::Text text1;
-  minwin::Text text2;
+  minwin::Text text1, text2, text3, text4;
   DrawMode draw_mode;
   Camera camera;
 
 public:
-  Scene()
+  Scene() : camera(Camera(1.0))
   {
     objects = std::vector<Object>();
     text1.set_pos(10, 10);
     text1.set_string("Press ESC to quit");
     text1.set_color(minwin::RED);
+
     text2.set_pos(10, 30);
     text2.set_string("Press SPACE to change mode");
     text2.set_color(minwin::RED);
+
+    text3.set_pos(10, 50);
+    text3.set_string("Use Z Q S D A E to move");
+    text3.set_color(minwin::RED);
+
+    text4.set_pos(10, 70);
+    text4.set_string("Use P O I K L M to rotate");
+    text4.set_color(minwin::RED);
     running = true;
     draw_mode = wireframe;
-    camera = Camera(1.0);
   }
 
   DrawMode get_draw_mode()
@@ -82,9 +89,21 @@ public:
     window.register_key_behavior(minwin::KEY_ESCAPE, new QuitKeyBehavior(*this));
     window.register_key_behavior(minwin::KEY_SPACE, new ChangeDrawModeBehavior(*this));
 
-    // scale keys
-    window.register_key_behavior(minwin::KEY_Z, new ScaleUpBehavior(objects));
-    window.register_key_behavior(minwin::KEY_S, new ScaleDownBehavior(objects));
+    // move keys
+    window.register_key_behavior(minwin::KEY_Z, new MoveUpYBehavior(camera));
+    window.register_key_behavior(minwin::KEY_S, new MoveDownYBehavior(camera));
+    window.register_key_behavior(minwin::KEY_Q, new MoveUpXBehavior(camera));
+    window.register_key_behavior(minwin::KEY_D, new MoveDownXBehavior(camera));
+    window.register_key_behavior(minwin::KEY_A, new MoveUpZBehavior(camera));
+    window.register_key_behavior(minwin::KEY_E, new MoveDownZBehavior(camera));
+
+    // rotation keys
+    window.register_key_behavior(minwin::KEY_P, new RotateCwYBehavior(camera));
+    window.register_key_behavior(minwin::KEY_O, new RotateAcwYBehavior(camera));
+    window.register_key_behavior(minwin::KEY_I, new RotateCwXBehavior(camera));
+    window.register_key_behavior(minwin::KEY_K, new RotateAcwXBehavior(camera));
+    window.register_key_behavior(minwin::KEY_L, new RotateCwZBehavior(camera));
+    window.register_key_behavior(minwin::KEY_M, new RotateAcwZBehavior(camera));
 
     // load font
     if (not window.load_font("fonts/FreeMonoBold.ttf", 16u))
@@ -114,12 +133,16 @@ public:
       // process keyboard inputs, etc.
       window.process_input();
 
+      camera.update();
+
       // clear window
       window.clear();
 
       // draw text
       window.render_text(text1);
       window.render_text(text2);
+      window.render_text(text3);
+      window.render_text(text4);
 
       for (Object o : objects)
       {
@@ -155,9 +178,9 @@ public:
               aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
               aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
     
-              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 50.0);
-              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 50.0);
-              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 50.0);
+              aline::Vec2r v0 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 50.0);
+              aline::Vec2r v1 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 50.0);
+              aline::Vec2r v2 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 50.0);
 
               // draw faces filling
               window.set_draw_color(f.get_color());
@@ -170,9 +193,9 @@ public:
               aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
               aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
     
-              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 50.0);
-              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 50.0);
-              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 50.0);
+              aline::Vec2r v0 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 50.0);
+              aline::Vec2r v1 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 50.0);
+              aline::Vec2r v2 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 50.0);
 
               // draw faces outline
               window.set_draw_color(minwin::BLACK);
@@ -370,37 +393,199 @@ private:
     Scene &owner;
   };
 
-  class ScaleUpBehavior : public minwin::IKeyBehavior
+  class MoveUpYBehavior : public minwin::IKeyBehavior
   {
   public:
-    ScaleUpBehavior(std::vector<Object>& l) : objects(l) {}
-    void on_press() const {};
+    MoveUpYBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.move_forward(1);
+    }
     void on_release() const
     {
-      for(Object o : objects){
-        o.scale_up();
-        std::cout << o.transform() << std::endl;
-      }
+      camera.stop_movement(1);
     }
 
   private:
-    std::vector<Object>& objects;
+    Camera& camera;
   };
 
-  class ScaleDownBehavior : public minwin::IKeyBehavior
+  class MoveDownYBehavior : public minwin::IKeyBehavior
   {
   public:
-    ScaleDownBehavior(std::vector<Object>& l) : objects(l) {}
-    void on_press() const {};
+    MoveDownYBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.move_backward(1);
+    }
     void on_release() const
     {
-      for(Object o : objects){
-        o.scale_down();
-        std::cout << o.transform() << std::endl;
-      }
+      camera.stop_movement(1);
     }
 
   private:
-    std::vector<Object>& objects;
+    Camera& camera;
+  };
+
+  class MoveUpXBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    MoveUpXBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.move_forward(0);
+    }
+    void on_release() const
+    {
+      camera.stop_movement(0);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class MoveDownXBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    MoveDownXBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.move_backward(0);
+    }
+    void on_release() const
+    {
+      camera.stop_movement(0);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class MoveUpZBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    MoveUpZBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.move_forward(2);
+    }
+    void on_release() const
+    {
+      camera.stop_movement(2);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class MoveDownZBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    MoveDownZBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.move_backward(2);
+    }
+    void on_release() const
+    {
+      camera.stop_movement(2);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class RotateCwYBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    RotateCwYBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.rotate_cw(1);
+    }
+    void on_release() const
+    {
+      camera.stop_rotation(1);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class RotateAcwYBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    RotateAcwYBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.rotate_acw(1);
+    }
+    void on_release() const
+    {
+      camera.stop_rotation(1);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class RotateCwXBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    RotateCwXBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.rotate_cw(0);
+    }
+    void on_release() const
+    {
+      camera.stop_rotation(0);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class RotateAcwXBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    RotateAcwXBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.rotate_acw(0);
+    }
+    void on_release() const
+    {
+      camera.stop_rotation(0);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class RotateCwZBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    RotateCwZBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.rotate_cw(2);
+    }
+    void on_release() const
+    {
+      camera.stop_rotation(2);
+    }
+
+  private:
+    Camera& camera;
+  };
+
+  class RotateAcwZBehavior : public minwin::IKeyBehavior
+  {
+  public:
+    RotateAcwZBehavior(Camera& c) : camera(c) {}
+    void on_press() const {
+      camera.rotate_acw(2);
+    }
+    void on_release() const
+    {
+      camera.stop_rotation(2);
+    }
+
+  private:
+    Camera& camera;
   };
 };
+
+Object Frustum::clip(const Object& o) const {
+  
+}

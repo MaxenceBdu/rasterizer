@@ -3,8 +3,6 @@
 #include <vector>
 #include "matrix.h"
 
-#define PI_180 M_PI / 180
-
 class Vertex
 {
   aline::Vec3r vec;
@@ -167,7 +165,8 @@ public:
     scale = scale + aline::Vec3r({-1,-1,-1});
   }
 
-  aline::real degrees_to_radians(aline::real x){
-    return x * PI_180;
+private:
+  aline::real degrees_to_radians(aline::real x) const{
+    return x * (M_PI / 180);
   }
 };
