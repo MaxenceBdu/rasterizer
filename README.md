@@ -6,4 +6,7 @@
   - ./bin/test_scene assets/teapot.obj
 
 I didn't manage to implement clipping, back face culling and hidden surface removal for the moment.  
-Information about camera's movement are displayed in the window.
+Information about camera's movement are displayed in the window.  
+  
+Known bugs :
+- Object may disappear while the camera rotates around z axis.
