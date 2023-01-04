@@ -585,7 +585,3 @@ private:
     Camera& camera;
   };
 };
-
-Object Frustum::clip(const Object& o) const {
-  
-}

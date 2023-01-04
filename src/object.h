@@ -100,12 +100,9 @@ class Object
 public:
   Object(const Shape* shape, const aline::Vec3r &translation, const aline::Vec3r &rotation, const aline::Vec3r &scale) : shape(shape)
   {
-    this->shape = shape;
     this->translation = aline::Vec3r(translation);
     this->rotation = aline::Vec3r(rotation);
     this->scale = aline::Vec3r(scale);
-
-    //std::cout << to_string(transform()) << std::endl;
   }
 
   /*
@@ -155,14 +152,6 @@ public:
   std::vector<Face> get_faces()
   {
     return shape->get_faces();
-  }
-
-  void scale_up(){
-    scale = scale + aline::Vec3r({1,1,1});
-  }
-
-  void scale_down(){
-    scale = scale + aline::Vec3r({-1,-1,-1});
   }
 
 private:

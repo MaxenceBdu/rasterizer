@@ -3,6 +3,7 @@
 - To see my latest work : 
   - make clean
   - make all
-  - ./bin/test_scene \<path for obj file\>
+  - ./bin/test_scene assets/teapot.obj
 
-I also writed some code to manage the difference of scale between the teapot and the tetrahedron so they can be loaded together.
+I didn't manage to implement clipping, back face culling and hidden surface removal for the moment.  
+Information about camera's movement are displayed in the window.

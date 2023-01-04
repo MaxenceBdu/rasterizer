@@ -66,6 +66,10 @@ public:
         //zoom_speed = 0.0625;
     }
 
+    Frustum& get_frustum(){
+        return frustum;
+    }
+
     aline::real get_aspect_ratio(){
         return aspect_ratio;
     }
