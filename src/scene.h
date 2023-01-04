@@ -2,6 +2,7 @@
 #include <string>
 #include "window.h"
 #include <assert.h>
+#include "camera.h"
 
 #define CANVAS_DIM 700
 #define WINDOW_WIDTH 1366.0
@@ -27,6 +28,7 @@ class Scene
   minwin::Text text1;
   minwin::Text text2;
   DrawMode draw_mode;
+  Camera camera;
 
 public:
   Scene()
@@ -40,6 +42,7 @@ public:
     text2.set_color(minwin::RED);
     running = true;
     draw_mode = wireframe;
+    camera = Camera(1.0);
   }
 
   DrawMode get_draw_mode()
@@ -134,9 +137,9 @@ public:
               aline::Vec3r _v1 = verts[f.get_v1()].get_vec();
               aline::Vec3r _v2 = verts[f.get_v2()].get_vec();
 
-              aline::Vec2r v0 = perspective_projection(o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 50.0);
-              aline::Vec2r v1 = perspective_projection(o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 50.0);
-              aline::Vec2r v2 = perspective_projection(o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 50.0);
+              aline::Vec2r v0 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v0[0], _v0[1], _v0[2], 1.0}), 50.0);
+              aline::Vec2r v1 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v1[0], _v1[1], _v1[2], 1.0}), 50.0);
+              aline::Vec2r v2 = perspective_projection(camera.transform()*o.transform()*aline::Vec4r({_v2[0], _v2[1], _v2[2], 1.0}), 50.0);
 
               // draw wireframe triangle
               window.set_draw_color(minwin::WHITE);

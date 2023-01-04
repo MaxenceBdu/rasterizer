@@ -1,5 +1,9 @@
 #include "vector.h"
 
+#ifndef MATRIX_H
+
+#define MATRIX_H
+
 namespace aline
 {
   template <class T, int M, int N>
@@ -355,3 +359,5 @@ namespace aline
   using Mat33r = Matrix<real,3ul,3ul>;
   using Mat44r = Matrix<real,4ul,4ul>;
 }
+
+#endif

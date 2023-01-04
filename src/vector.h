@@ -4,6 +4,10 @@
 #include <sstream>
 #include <float.h>
 
+#ifndef VECTOR_H
+
+#define VECTOR_H
+
 namespace aline
 {
   template <class T, int N>
@@ -295,3 +299,5 @@ namespace aline
   using Vec3r = Vector<real, 3ul>;
   using Vec4r = Vector<real, 4ul>;
 }
+
+#endif
