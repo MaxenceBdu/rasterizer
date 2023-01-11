@@ -1,7 +1,7 @@
-## Description
+## Description
 
 This program was made during **Mathematical Tools for game programming** course.
-It is called *rasterizer* and renders a 3D object in a window generated thanks to the *minwin* library.
+It is called *rasterizer* and renders a 3D object in a window generated thanks to the *minwin* library.  
 The *minwin* libray is the work of Mr Tiago De Lima, professor and researcher at CRIL and Artois University.
 This *rasterizer* was made and tested under Linux only.
 
@@ -14,10 +14,10 @@ In a terminal :
 - make all
 - ./bin/test_scene assets/teapot.obj
 
-## Not implemented :
+## Not implemented :
 - Clipping
 - Back face culling
 - Hidden surface removal
   
-## Known bugs :
+## Known bugs :
 - Object may disappear when the camera rotates around z axis
