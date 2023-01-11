@@ -6,3 +6,6 @@
 
 # C++ executable files
 bin/*
+
+# Visual studio code files
+.vscode/

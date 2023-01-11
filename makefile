@@ -31,8 +31,8 @@ else ifeq ($(OS), Darwin)
     LIBS := 
 endif
 
-MINWIN_INC = -I${HOME}/minwin/include
-MINWIN_LIB = -L${HOME}/minwin/bin -lminwin
+MINWIN_INC = -Iminwin/include
+MINWIN_LIB = -Lminwin/bin -lminwin
 #-I${HOME}/minwin/src 
 
 CFLAGS = -std=c++11 -Wall -O $(CDEBUG) $(INC) $(MINWIN_INC)
